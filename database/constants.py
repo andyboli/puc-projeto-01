@@ -1,10 +1,12 @@
-# trocar para .env
+from dotenv import dotenv_values
+
+env = dotenv_values(".env")
 
 CONFIG = {
-  'user': 'xxxx',
-  'password': 'xxxxxx',
-  'host': 'xxxxxx',
-  'raise_on_warnings': True
+    'user': env["USER"],
+    'password': env["PASSWORD"],
+    'host': env["HOST"],
+    'raise_on_warnings': True
 }
 
 DATABASE = "CREATE DATABASE IF NOT EXISTS {} DEFAULT CHARACTER SET 'UTF8MB4'"
@@ -24,3 +26,7 @@ TABLES['employees'] = (
     "  PRIMARY KEY (`emp_no`)"
     ") ENGINE=InnoDB")
 
+
+'''It doesn't matter if this string contains 'single'
+or "double" quotes, as long as there aren't 3 in a
+row.'''

@@ -1,8 +1,7 @@
 import mysql.connector
 from mysql.connector import (errorcode, MySQLConnection)
-from reader import (json)
+from controller import (reader)
 import database.constants as constants
-
 
 
 def create_database(cnx: MySQLConnection):
@@ -11,10 +10,10 @@ def create_database(cnx: MySQLConnection):
         cursor.execute((constants.DATABASE).format(constants.DB_NAME))
         cnx.database = constants.DB_NAME
     except mysql.connector.Error as err:
-        print(json.lang('database_create_error').format(err))
+        print(reader.lang('database_create_error').format(err))
         exit(1)
     else:
-        print(json.lang('database_create_done').format(constants.DB_NAME))
+        print(reader.lang('database_create_done').format(constants.DB_NAME))
     finally:
         cursor.close()
 
@@ -26,8 +25,8 @@ def create_tables(cnx: MySQLConnection):
             table_description = constants.TABLE[table_name]
             cursor.execute(table_description)
     except mysql.connector.Error as err:
-        print(json.lang('database_create_tables_error').format(err))
+        print(reader.lang('database_create_tables_error').format(err))
         exit(1)
     else:
-        print(json.lang('database_create_tables_done').format(err))
+        print(reader.lang('database_create_tables_done').format(err))
         cursor.close()

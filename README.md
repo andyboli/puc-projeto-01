@@ -1,24 +1,125 @@
-# Desenvolvimento de aplicação para tratamento de dados
+# Desenvolvimento de aplicação para tratamento de dados - PUC
 
-## Environment settings
+## Development
 
-### Source-code editor
+### Command line and environment
+
+PYTHONPATH
+
+```sh
+export PYTHONPATH="\${PYTHONPATH}:/home/anderson.bolivar/Documentos/boli/puc-projeto"
+```
+
+```sh
+sudo apt install python3.8-venv
+python3 -m venv .venv && source .venv/bin/activate
+which python3
+```
+
+Installing python modules:
+
+```sh
+python3 -m pip install -r requirements.txt
+```
+
+Running the project:
+
+```sh
+python -m index
+```
+
+Launch MySQL Workbench:
+
+```sh
+mysql-workbench
+```
+
+Python version:
+
+```sh
+python --version
+Python 3.8.10
+```
+
+Invoking the Interpreter
+
+### Tools
+
+#### Integrated development environment - IDE: VS Code
 
 [Visual Studio Code](https://code.visualstudio.com/)
 
 Support for debugging, syntax highlighting, intelligent code completion, snippets, code refactoring and embedded Git;
 
-### Programming language
+#### High-level programming language: Python
 
-[Python](https://www.python.org/downloads/)
+[Dowload Python](https://www.python.org/downloads/)
 
-Python is an interpreted, object-oriented, high-level programming language with dynamic semantics. Its high-level built in data structures, combined with dynamic typing and dynamic binding, make it very attractive for Rapid Application Development, as well as for use as a scripting or glue language to connect existing components together. Python's simple, easy to learn syntax emphasizes readability and therefore reduces the cost of program maintenance. Python supports modules and packages, which encourages program modularity and code reuse. The Python interpreter and the extensive standard library are available in source or binary form without charge for all major platforms, and can be freely distributed.
+Python is an interpreted, object-oriented, high-level programming language with dynamic semantics;
 
-#### Environment Variables
+Its high-level built in data structures, combined with dynamic typing and dynamic binding, make it very attractive for Rapid Application Development, as well as for use as a scripting or glue language to connect existing components together;
+
+Python's simple, easy to learn syntax emphasizes readability and therefore reduces the cost of program maintenance;
+
+Python supports modules and packages, which encourages program modularity and code reuse;
+
+The Python interpreter and the extensive standard library are available in source or binary form without charge for all major platforms, and can be freely distributed;
+
+Python is simple to use, but it is a real programming language, offering much more structure and support for large programs than shell scripts or batch files can offer. On the other hand, Python also offers much more error checking than C, and, being a very-high-level language, it has high-level data types built in, such as flexible arrays and dictionaries;
+
+Python allows you to split your program into modules that can be reused in other Python programs. It comes with a large collection of standard modules that you can use as the basis of your programs;
+
+Python is an interpreted language, which can save you considerable time during program development because no compilation and linking is necessary;
+
+The interpreter can be used interactively, which makes it easy to experiment with features of the language, to write throw-away programs, or to test functions during bottom-up program development. It is also a handy desk calculator;
+
+Python enables programs to be written compactly and readably. Programs written in Python are typically much shorter than equivalent C, C++, or Java programs, for several reasons:
+
+- the high-level data types allow you to express complex operations in a single statement;
+- statement grouping is done by indentation instead of beginning and ending brackets;
+- no variable or argument declarations are necessary.
+
+Python is extensible: if you know how to program in C it is easy to add a new built-in function or module to the interpreter;
+
+```sh
+
+```
+
+##### CLI
+
+```sh
+python [-bBdEhiIOqsSuvVWx?] [-c command | -m module-name | script | - ] [args]
+```
+
+Interactive Mode:
+
+When called with standard input connected to a tty device, it prompts for commands and executes them until an EOF (an end-of-file character, you can produce that with Ctrl-D on UNIX or Ctrl-Z, Enter on Windows) is read;
+
+```sh
+python
+```
+
+When called with a file name argument or with a file as standard input, it reads and executes a script from that file.
+
+```sh
+python filename.py
+```
+
+When called with a directory name argument, it reads and executes an appropriately named script from that directory;
+
+When called with -c command, it executes the Python statement(s) given as command;
+
+When called with -m module-name, the given module is located on the Python module path and executed as a script;
+
+```sh
+python -m filename.py
+```
+
+##### Environment Variables
 
 Environment variables are variables you store outside of your program that can affect how it runs;
 
-#### PYTHONPATH
+PYTHONPATH
 
 An environment variable that lets you add additional directories where Python looks for packages and modules;
 It is used by user-defined modules to set the path so that they can be directly imported into a Python program;
@@ -29,7 +130,7 @@ PYTHONPATH variable includes various directories as a string to be added to the 
 export PYTHONPATH="\${PYTHONPATH}:/home/anderson.bolivar/Documentos/boli/puc-projeto"
 ```
 
-#### Virtual Environment
+##### Virtual Environment
 
 Semi-isolated Python environment that allows packages to be installed for use by a particular application, rather than being installed system wide;
 A virtual environment is a directory tree which contains Python executable files and other files which indicate that it is a virtual environment;
@@ -41,7 +142,7 @@ python3 -m venv .venv && source .venv/bin/activate
 which python3
 ```
 
-#### Installing Python Modules
+##### Installing Python Modules
 
 pip is the preferred installer program;
 
@@ -49,11 +150,7 @@ pip is the preferred installer program;
 python3 -m pip install -r requirements.txt
 ```
 
-##### Inquirer
-
-Collection of common interactive command line user interfaces, based on Inquirer.js.
-
-#### Executing modules as scripts
+##### Executing modules as scripts
 
 A module is a file containing Python definitions and statements;
 The file name is the module name with the suffix .py appended;
@@ -63,7 +160,7 @@ Within a module, the module’s name (as a string) is available as the value of 
 python index.py
 ```
 
-#### Packages
+##### Packages
 
 Packages are a way of structuring Python’s module namespace by using “dotted module names”. For example, the module name A.B designates a submodule named B in a package named A;
 When importing the package, Python searches through the directories on sys.path looking for the package subdirectory;
