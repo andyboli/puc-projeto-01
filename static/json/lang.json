@@ -1,3 +1,12 @@
 {
-  "main_title": "Desenvolvimento de aplicação para tratamento de dados\n\nPopulação de Rua de Belo Horizonte\n\nAnderson Bolivar Nascimento\nGustavo Benevenuto de Oliveira\nJose Marques Lima Neto\nWendy Luiza Cunha dos Santos\n"
+  "main_title": "Desenvolvimento de aplicação para tratamento de dados\n\nPopulação de Rua de Belo Horizonte\n\nAnderson Bolivar Nascimento\nGustavo Benevenuto de Oliveira\nJose Marques Lima Neto\nWendy Luiza Cunha dos Santos\n",
+  "database_connect_start": "Iniciando a conexão com o MySQL...",
+  "database_connect_close": "Conexão com o MySQL encerrada",
+  "database_connect_done": "Conectado com o MySQL versão {}",
+  "database_connect_error": "Conexão com o MySQL falhou: {}",
+  "database_connect_crendentials_error": "Conexão com o MySQL falhou: Nome de usuário ou senha incorretos",
+  "database_connect_database_error": "Base de dados inexistente",
+  "database_create_database_start": "Iniciando a criação da base de dados {}...",
+  "database_create_database_error": "Falha ao criar a base de dados: {}",
+  "database_create_database_done": "Sucesso ao criar a base de dados {}"
 }
