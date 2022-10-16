@@ -49,6 +49,8 @@ def map_field(field):
 def map_age(age):
     if type(age) is str:
         return int(float(age.replace(",", '.')))
+    elif type(age) is int:
+        return age
     else:
         return None
 
