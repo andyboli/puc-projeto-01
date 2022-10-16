@@ -13,6 +13,7 @@ def read_data() -> str:
     header = csv.columns
     values = csv.values
     print(header)
+    print(values[0])
 
     # for path in files_path:
     #     print(pd.read_csv())

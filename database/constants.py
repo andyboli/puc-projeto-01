@@ -9,24 +9,28 @@ CONFIG = {
     'raise_on_warnings': True
 }
 
-DATABASE = "CREATE DATABASE IF NOT EXISTS {} DEFAULT CHARACTER SET 'UTF8MB4'"
 
-DB_NAME = 'puc'
+CREATE_DATABASE_QUERY = "CREATE DATABASE IF NOT EXISTS {} DEFAULT CHARACTER SET 'UTF8MB4'"
+
+DROP_DATABASE_QUERY = "DROP DATABASE IF EXISTS {}"
+
+DB_NAME = 'puc_database'
 
 TABLES = {}
 
-TABLES['employees'] = (
-    "CREATE TABLE IF NOT EXISTS `employees` ("
-    "  `emp_no` int(11) NOT NULL AUTO_INCREMENT,"
-    "  `birth_date` date NOT NULL,"
-    "  `first_name` varchar(14) NOT NULL,"
-    "  `last_name` varchar(16) NOT NULL,"
-    "  `gender` enum('M','F') NOT NULL,"
-    "  `hire_date` date NOT NULL,"
-    "  PRIMARY KEY (`emp_no`)"
-    ") ENGINE=InnoDB")
 
-
-'''It doesn't matter if this string contains 'single'
-or "double" quotes, as long as there aren't 3 in a
-row.'''
+TABLES['homeless'] = (
+    '''CREATE TABLE IF NOT EXISTS `mydb`.`homeless` (
+    `id` INT NOT NULL,
+    `data_nascimento` DATE NOT NULL,
+    `data_referencia` DATE NOT NULL,
+    `idade` INT NOT NULL,
+    `dias` INT NOT NULL,
+    `bolsa_familia` TINYINT NOT NULL,
+    `regiao` VARCHAR(45) NOT NULL,
+    `genero` VARCHAR(45) NULL,
+    `etinia` VARCHAR(45) NULL,
+    `escolaridade` VARCHAR(45) NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `idhomeless_UNIQUE` (`id` ASC) VISIBLE)
+    ENGINE = InnoDB''')

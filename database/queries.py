@@ -7,11 +7,12 @@ import database.constants as constants
 def create_database(cnx: MySQLConnection):
     try:
         cursor = cnx.cursor()
-        cursor.execute((constants.DATABASE).format(constants.DB_NAME))
+        cursor.execute(
+            constants.CREATE_DATABASE_QUERY.format(constants.DB_NAME))
         cnx.database = constants.DB_NAME
     except mysql.connector.Error as err:
-        print(reader.lang('database_create_error').format(err))
-        exit(1)
+        if err.errno != errorcode.ER_DB_CREATE_EXISTS:
+            print(reader.lang('database_create_error').format(err))
     else:
         print(reader.lang('database_create_done').format(constants.DB_NAME))
     finally:

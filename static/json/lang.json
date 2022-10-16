@@ -2,7 +2,7 @@
   "main_title": "Desenvolvimento de aplicação para tratamento de dados\n\nPopulação de Rua de Belo Horizonte\n\nAnderson Bolivar Nascimento\nGustavo Benevenuto de Oliveira\nJose Marques Lima Neto\nWendy Luiza Cunha dos Santos\n",
   "database_connect": "Iniciando a conexão com o MySQL...",
   "database_connect_close": "Conexão com o MySQL encerrada",
-  "database_connect_done": "Conexão com o MySQL realizada com sucesso!",
+  "database_connect_done": "Conectado com o MySQL versão {}",
   "database_connect_error": "Conexão com o MySQL falhou",
   "database_connect_error_crendentials": "Nome de usuário ou senha incorretos",
   "database_connect_error_database": "Base de dados inexistente",
