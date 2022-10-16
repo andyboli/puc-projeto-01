@@ -12,7 +12,8 @@ export PYTHONPATH="\${PYTHONPATH}:/home/anderson.bolivar/Documentos/boli/puc-pro
 
 ```sh
 sudo apt install python3.8-venv
-python3 -m venv .venv && source .venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 which python3
 ```
 
