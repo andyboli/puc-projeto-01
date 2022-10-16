@@ -1,9 +1,7 @@
-from email.policy import strict
-from genericpath import exists
+from controller import (reader)
 import os
 import pandas as pd
-from database import (constants)
-from controller import (reader)
+import pprint
 
 
 def lang(key: str) -> str:
@@ -108,6 +106,6 @@ def map_homeless_data(data: dict):
                       {"periods": periods, "genders": genders,
                        "schoolings": schoolings, "ethinicities": ethinicities, "regions": regions},
                       "data": mapped_data}
-        print(reader.lang('reader_read_data_done').format(
-            dir, str(final_data['ranges']), len(final_data['data'])))
+        pprint.pprint(reader.lang('reader_read_data_done').format(
+            'static/csv/homeless', str(final_data['ranges']), len(final_data['data'])))
         return final_data
