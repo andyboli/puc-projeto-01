@@ -29,4 +29,6 @@ def close(connection: MySQLConnection):
 def run():
     connection = connect()
     queries.create_database(connection)
+    homeless_data_raw = reader.read_data(table='homeless')
+    homeless_data = reader.map_homeless_data(data=homeless_data_raw)
     close(connection)

@@ -8,5 +8,11 @@
   "database_connect_database_error": "Base de dados inexistente",
   "database_create_database_start": "Iniciando a criação da base de dados {}...",
   "database_create_database_error": "Falha ao criar a base de dados: {}",
-  "database_create_database_done": "Sucesso ao criar a base de dados {}"
+  "database_create_database_done": "Sucesso ao criar a base de dados {}",
+  "reader_read_data_start": "Lendo os dados do diretório {}...",
+  "reader_read_data_error": "Error ao ler os dados do diretório {}: {}",
+  "reader_read_data_done": "Dados do diretório {} lidos com sucesso\n Colunas: {}\nQuantidade de linhas: {}",
+  "reader_map_data_start": "Mapeando dados do diretório {}...",
+  "reader_map_data_error": "Error ao mapear dados do diretório {}: {}",
+  "reader_map_data_done": "Mapeamento de dados do diretório {} feito com sucesso:\nEscala: {}\n Quantidade de linhas: {}"
 }
