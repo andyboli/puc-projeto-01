@@ -33,5 +33,5 @@ def run():
     homeless_data_raw = reader.read_data(table='homeless')
     homeless_data = reader.map_homeless_data(data=homeless_data_raw)
     queries.insert_table(connection=connection,
-                         table='homeless', data=homeless_data['data'])
+                         table='homeless', data=homeless_data)
     close(connection)
