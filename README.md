@@ -167,7 +167,7 @@ Packages are a way of structuring Python’s module namespace by using “dotted
 When importing the package, Python searches through the directories on sys.path looking for the package subdirectory;
 The **init**.py files are required to make Python treat directories containing the file as packages;
 
-### MySQL
+#### MySQL
 
 MySQL, the most popular Open Source SQL database management system, is developed, distributed, and supported by Oracle Corporation;
 MySQL is a database management system. A database is a structured collection of data;
