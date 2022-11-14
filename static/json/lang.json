@@ -1,3 +1,25 @@
 {
-  "main_title": "Desenvolvimento de aplicação para tratamento de dados\n\nPopulação de Rua de Belo Horizonte\n\nAnderson Bolivar Nascimento\nGustavo Benevenuto de Oliveira\nJose Marques Lima Neto\nWendy Luiza Cunha dos Santos\n"
+  "main_title": "Desenvolvimento de aplicação para tratamento de dados\n\nPopulação de Rua de Belo Horizonte\n\nAnderson Bolivar Nascimento\nGustavo Benevenuto de Oliveira\nJose Marques Lima Neto\nWendy Luiza Cunha dos Santos\n",
+  "database_connect_start": "Iniciando a conexão com o MySQL...",
+  "database_connect_close": "Conexão com o MySQL encerrada",
+  "database_connect_done": "Conectado com o MySQL versão {}",
+  "database_connect_error": "Conexão com o MySQL falhou: {}",
+  "database_connect_crendentials_error": "Conexão com o MySQL falhou: Nome de usuário ou senha incorretos",
+  "database_connect_database_error": "Base de dados inexistente",
+  "database_create_database_start": "Iniciando a criação da base de dados {}...",
+  "database_create_database_error": "Falha ao criar a base de dados: {}",
+  "database_create_database_done": "Sucesso ao criar a base de dados {}",
+  "database_create_tables_start": "Iniciando a criação das tabelas...",
+  "database_create_tables_table_error": "Error ao criar tabela {}: {}",
+  "database_create_tables_error": "Error ao criar tabelas: {}",
+  "database_create_tables_done": "Tabelas criadas com sucesso",
+  "database_insert_table_start": "Populando a tabela {}...",
+  "database_insert_table_error": "Error ao popular a tabela {}: {}",
+  "database_insert_table_done": "Tabela {} criada com sucesso, {} linhas inseridas",
+  "reader_read_data_start": "Lendo os dados do diretório {}...",
+  "reader_read_data_error": "Error ao ler os dados do diretório {}: {}",
+  "reader_read_data_done": "Dados do diretório {} lidos com sucesso\n Colunas: {}\nQuantidade de linhas: {}",
+  "reader_map_data_start": "Mapeando dados do diretório {}...",
+  "reader_map_data_error": "Error ao mapear dados do diretório {}: {}",
+  "reader_map_data_done": "Mapeamento de dados do diretório {} feito com sucesso:\nEscala: {}\n Quantidade de linhas: {}"
 }
