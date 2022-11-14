@@ -1,3 +1,5 @@
+from ast import If
+from http.client import INSUFFICIENT_STORAGE
 from controller import (reader)
 import os
 import pandas as pd
@@ -41,9 +43,13 @@ def read_data(table: str):
 
 def map_field(field):
     if type(field) is str:
+        string_split = field.split(sep=" ")
+        if string_split[0][0].lower() == "n" and string_split[0][-1].lower() == "o":
+            string_split[0] = "Não"
+            field = " ".join(string_split)
         return field
     else:
-        return None
+        return "Não Informado"
 
 
 def map_age(age):
@@ -73,8 +79,21 @@ def map_year(date):
         return int(raw_year[len(raw_year) - 4] + raw_year[len(raw_year) - 3] +
                    raw_year[len(raw_year) - 2] + raw_year[len(raw_year) - 1])
 
+def map_age_bracket(age_bracket):
+    if type(age_bracket) is str:
+        age_bracket = int(age_bracket.split(sep=",")[0])
+    if age_bracket < 12: 
+        return '0-11' 
+    elif age_bracket >= 12 and age_bracket <18:
+         return '12-17'
+    elif age_bracket >= 18 and age_bracket <30:
+         return '18-29'
+    elif age_bracket >= 30 and age_bracket <60:
+         return '30-59'
+    else: 
+        return '>60'
 
-def map_homeless_data(data: dict):
+def map_homeless_data(data: dict)->dict:
     try:
         print(reader.lang('reader_map_data_start').format('static/csv/homeless'))
         mapped_data = []
@@ -98,16 +117,17 @@ def map_homeless_data(data: dict):
             region = map_field(values[12])
             regions.add(region)
             year = map_year(values[14])
+            age_bracket = map_age_bracket(values[3])
             mapped_data.append((period, birthday, age, gender,
-                                bolsa_familia, schooling, ethnicity, region, year))
+                                bolsa_familia, schooling, ethnicity, region, year, age_bracket))
     except Exception as err:
         print(reader.lang('reader_read_data_error').format(
             'static/csv/homeless', err))
-    else:
-        final_data = {'ranges':
-                      {"periods": periods, "genders": genders,
-                       "schoolings": schoolings, "ethinicities": ethinicities, "regions": regions},
-                      "data": mapped_data}
-        pprint.pprint(reader.lang('reader_read_data_done').format(
-            'static/csv/homeless', str(final_data['ranges']), len(final_data['data'])))
-        return final_data
+    
+    final_data = {'ranges':
+                    {"periods": periods, "genders": genders,
+                    "schoolings": schoolings, "ethinicities": ethinicities, "regions": regions},
+                    "data": mapped_data}
+    pprint.pprint(reader.lang('reader_read_data_done').format(
+        'static/csv/homeless', str(final_data['ranges']), len(final_data['data'])))
+    return final_data
