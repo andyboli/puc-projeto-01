@@ -1,0 +1,219 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+}
+
+:root {
+  --black: #000000;
+  --blue: #549eff;
+  --dark-blue: #4a58d5;
+  --dark-gray: #343841;
+  --dark-green: #006a31;
+  --dark-navy: #223154;
+  --dark-red: #c20909;
+  --gray: #8d95a7;
+  --green: #00bd6a;
+  --light-blue: #e4f1ff;
+  --light-gray: #d7dae0;
+  --light-green: #e5f7ed;
+  --light-navy: #e6e8ed;
+  --light-red: #fde7e7;
+  --navy: #364b74;
+  --red: #e40a0a;
+  --white: #ffffff;
+}
+
+:root {
+  --grid: 8px;
+}
+
+:root {
+  --font-weight-bold: 600;
+  --font-weight-default: 400;
+  --font-weight-medium: 500;
+}
+
+:root {
+  --font-size-h1: 20px;
+  --font-size-h2: 18px;
+  --font-size-h3: 15px;
+  --font-size-large: 14px;
+  --font-size-medium: 12px;
+  --font-size-small: 10px;
+}
+
+:root {
+  --line-height-h1: 40px;
+  --line-height-h2: 35px;
+  --line-height-h3: 30px;
+  --line-height-large: 25px;
+  --line-height-medium: 20px;
+  --line-height-small: 15px;
+}
+
+:root {
+  --radious-large: calc(var(--grid) * 2);
+  --radious-medium: var(--grid);
+  --radious-pill: 100%;
+  --radious-round: calc(var(--grid) * 1000);
+  --radious-small: calc(var(--grid) * 0.5);
+}
+
+:root {
+  --shadow-default: rgb(0 0 0 / 8%) 0px 4px 8px;
+  --shadow-fade: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+  --shadow-round: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+}
+
+:root {
+  --padding-rectangle: calc(var(--grid) * 1) calc(var(--grid) * 3);
+  --padding-square: var(--grid);
+  --padding-small-rectangle: calc(var(--grid) * 1) calc(var(--grid) * 2);
+}
+
+.default-section {
+  background-color: var(--white);
+  box-sizing: border-box;
+  display: flex;
+  gap: var(--grid);
+  height: 100%;
+  margin: 0;
+  padding: var(--padding-square);
+  width: 100%;
+}
+
+.default-auto-section {
+  background-color: var(--white);
+  box-sizing: border-box;
+  display: flex;
+  gap: var(--grid);
+  height: auto;
+  margin: 0;
+  padding: var(--padding-square);
+  width: auto;
+}
+
+.default-center-row-section {
+  align-content: center;
+  align-items: center;
+  flex-flow: row;
+  justify-content: center;
+}
+
+.default-start-row-section {
+  align-content: center;
+  align-items: center;
+  flex-flow: row;
+  justify-content: flex-start;
+}
+
+.default-start-column-section {
+  align-content: center;
+  align-items: center;
+  flex-flow: column;
+  justify-content: start;
+}
+
+.default-border {
+  border-radius: var(--radious-medium);
+  border: 1px solid transparent;
+  box-shadow: var(--shadow-default);
+}
+
+.default-typography {
+  color: var(--black);
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-default);
+  line-height: var(--line-height-medium);
+  margin: 0;
+  padding: 0;
+}
+
+.btn-success {
+  background-color: var(--green);
+  border-color: var(--green);
+  color: var(--white);
+  height: 40px;
+}
+
+.btn-primary {
+  background-color: var(--blue);
+  border-color: var(--blue);
+  color: var(--white);
+  height: 40px;
+  width: 200px;
+}
+
+.btn-success > p,
+.btn-danger > p,
+.btn-primary > p {
+  color: var(--white);
+  font-weight: var(--font-weight-bold);
+}
+
+.btn-danger {
+  background-color: var(--red);
+  border-color: var(--red);
+  color: var(--white);
+  height: 40px;
+}
+
+.btn-danger:hover,
+.btn-danger:focus {
+  background-color: var(--dark-red);
+  border-color: var(--dark-red);
+  height: 40px;
+}
+
+.btn-success:hover,
+.btn-success:focus {
+  background-color: var(--dark-green);
+  border-color: var(--dark-green);
+  height: 40px;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--dark-blue);
+  border-color: var(--dark-blue);
+  height: 40px;
+}
+
+.btn-primary:disabled {
+  cursor: not-allowed;
+  background-color: var(--light-gray);
+  border-color: var(--light-gray);
+}
+
+.main-section {
+  gap: calc(var(--grid) * 0.25);
+  height: 100vh;
+  padding: var(--padding-rectangle);
+  width: 100vw;
+}
+
+.main-title {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-h1);
+  text-transform: uppercase;
+}
+
+.bold-text {
+  font-weight: var(--font-weight-bold);
+}
+
+.hide {
+  display: none;
+}
+
+.plotly {
+  height: 100%;
+  width: 100%;
+}
+
+.main-svg {
+  height: 100%;
+  width: 100%;
+}
