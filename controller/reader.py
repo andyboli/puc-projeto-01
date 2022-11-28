@@ -3,23 +3,20 @@ from http.client import INSUFFICIENT_STORAGE
 from controller import (reader)
 import os
 import pandas as pd
-import pprint
+import datetime
 
 
 def lang(key: str) -> str:
     return pd.read_json(path_or_buf='static/json/lang.json', orient='index').to_dict()[0][key]
 
 
-def read_csv_header(filepath: str):
+def read_csv(filepath: str):
+    data: dict[str, list] = {}
     csv = pd.read_csv(
         filepath_or_buffer=filepath, sep=';', header=0, encoding='latin-1')
-    return csv.columns.array
-
-
-def read_csv_values(filepath: str):
-    csv = pd.read_csv(
-        filepath_or_buffer=filepath, sep=';', header=0, encoding='latin-1')
-    return csv.values
+    data['headers'] = csv.columns.tolist()
+    data['values'] = csv.values.tolist()
+    return data
 
 
 def read_data(table: str):
@@ -27,29 +24,40 @@ def read_data(table: str):
         dir = 'static/csv/{}'.format(table)
         print(reader.lang('reader_read_data_start').format(dir))
         files_path = os.listdir(dir)
-        data: dict[str, list] = {}
-        data['header'] = read_csv_header(dir + "/{}".format(files_path[1]))
-        data['values'] = []
-        for path in files_path:
-            data['values'].extend(read_csv_values(
-                filepath=dir + "/{}".format(path)))
+        data = []
+        data_length = 0
+        for filepath in files_path:
+            csv_data = read_csv(dir + "/{}".format(filepath))
+            data.append(csv_data)
+            data_length += len(csv_data['values'])
     except Exception as err:
         print(reader.lang('reader_read_data_error').format(dir, err))
     else:
         print(reader.lang('reader_read_data_done').format(
-            dir, str(data['header']), len(data['values'])))
+            dir, data_length))
         return data
 
 
-def map_field(field):
-    if type(field) is str:
-        string_split = field.split(sep=" ")
-        if string_split[0][0].lower() == "n" and string_split[0][-1].lower() == "o":
-            string_split[0] = "Não"
-            field = " ".join(string_split)
-        return field
-    else:
-        return "Não Informado"
+def map_region(region):
+    if region == 'LESTE':
+        return 'Leste'
+    if region == 'NOROESTE':
+        return 'Noroeste'
+    if region == 'BARREIRO':
+        return 'Barreiro'
+    if region == 'NORDESTE':
+        return 'Nordeste'
+    if region == 'VENDA NOVA':
+        return 'Venda Nova'
+    if region == 'PAMPULHA':
+        return 'Pampulha'
+    if region == 'CENTRO-SUL' or region == 'CENTRO SUL':
+        return 'Centro Sul'
+    if region == 'OESTE':
+        return 'Oeste'
+    if region == 'NORTE':
+        return 'Norte'
+    return None
 
 
 def map_age(age):
@@ -61,73 +69,186 @@ def map_age(age):
         return None
 
 
-def map_bolsa_familia(bolsa_familia):
-    if (bolsa_familia == 'SIM'):
-        return True
-    else:
-        return False
+def map_ethnicity(ethnicity):
+    if ethnicity == 'Parda':
+        return ethnicity
+    if ethnicity == 'Branca':
+        return ethnicity
+    if ethnicity == 'Amarela':
+        return ethnicity
+    if ethnicity == 'Indigena':
+        return ethnicity
+    if ethnicity == 'Preta':
+        return ethnicity
+    return None
 
 
-def map_year(date):
-    if type(date) is str:
-        raw_date: list = date.split('/')
-        raw_year: str = raw_date[len(raw_date) - 1]
-        return int(raw_year[len(raw_year) - 4] + raw_year[len(raw_year) - 3] +
-                   raw_year[len(raw_year) - 2] + raw_year[len(raw_year) - 1])
-    else:
-        raw_year: str = str(date)
-        return int(raw_year[len(raw_year) - 4] + raw_year[len(raw_year) - 3] +
-                   raw_year[len(raw_year) - 2] + raw_year[len(raw_year) - 1])
+def map_schooling(schooling):
+    if schooling == 'Medio incompleto':
+        return schooling
+    if schooling == 'Fundamental completo':
+        return schooling
+    if schooling == 'Fundamental incompleto':
+        return schooling
+    if schooling == 'Medio completo':
+        return schooling
+    if schooling == 'Superior incompleto ou mais':
+        return schooling
+    if schooling == 'Sem instrucao':
+        return schooling
+    return None
 
-def map_age_bracket(age_bracket):
-    if type(age_bracket) is str:
-        age_bracket = int(age_bracket.split(sep=",")[0])
-    if age_bracket < 12: 
-        return '0-11' 
-    elif age_bracket >= 12 and age_bracket <18:
-         return '12-17'
-    elif age_bracket >= 18 and age_bracket <30:
-         return '18-29'
-    elif age_bracket >= 30 and age_bracket <60:
-         return '30-59'
-    else: 
-        return '>60'
 
-def map_homeless_data(data: dict)->dict:
+def map_birthday(birthday):
+    if type(birthday) is str:
+        birthday_list: list = birthday.split(' ')[0].split('/')
+        birtday_day = birthday_list[0]
+        if len(birtday_day) == 1:
+            birtday_day = '0' + birtday_day
+        birtday_month = birthday_list[1]
+        if len(birtday_month) == 1:
+            birtday_month = '0' + birtday_month
+        birtday_year = birthday_list[2]
+        return birtday_day + '/' + birtday_month + '/' + birtday_year
+    return None
+
+
+def get_period_index(headers: list):
     try:
-        print(reader.lang('reader_map_data_start').format('static/csv/homeless'))
+        period_index = headers.index('TEMPO_VIVE_NA_RUA')
+        return period_index
+    except:
+        try:
+            period_index = headers.index('TEMPO_VIVIE_NA_RUA')
+            return period_index
+        except:
+            period_index = headers.index('ï»¿TEMPO_VIVE_NA_RUA')
+            return period_index
+
+
+def get_social_welfare_index(headers: list):
+    try:
+        social_welfare_index = headers.index('BOLSA_FAMILIA')
+        return social_welfare_index
+    except:
+        social_welfare_index = headers.index('AUXILIO_BRASIL')
+        return social_welfare_index
+
+
+def map_social_welfare(social_welfare):
+    if social_welfare == 'SIM':
+        return True
+    return False
+
+
+def map_month(month: str):
+    if month == 'JAN':
+        return '01'
+    if month == 'FEV':
+        return '02'
+    if month == 'MAR':
+        return '03'
+    if month == 'ABR':
+        return '04'
+    if month == 'MAI':
+        return '05'
+    if month == 'JUN':
+        return '06'
+    if month == 'JUL':
+        return '07'
+    if month == 'AGO':
+        return '08'
+    if month == 'SET':
+        return '09'
+    if month == 'out':
+        return '10'
+    if month == 'NOV':
+        return '11'
+    if month == 'DEZ':
+        return '12'
+    return month
+
+
+def map_year(year: str):
+    if len(year) == 2:
+        return '20' + year
+    return year
+
+
+def map_month_year(month_year):
+    if type(month_year) == int:
+        month_year_str = str(month_year)
+        return '0' + month_year_str[0] + '/' + month_year_str[1:5]
+    month_year_list = month_year.split("/")
+    if len(month_year_list) == 3:
+        return month_year_list[1] + '/' + month_year_list[2]
+    if len(month_year_list) == 2:
+        return map_month(month_year_list[0]) + '/' + map_year(month_year_list[1])
+    if len(month_year_list) == 1:
+        month_year_str = month_year_list[0]
+        return map_month(month_year_str[0:3]) + '/' + month_year_str[3:7]
+    return month_year
+
+
+def map_gender(gender):
+    if gender == 'FEMININO':
+        return 'Feminino'
+    if gender == 'MASCULINO':
+        return 'Masculino'
+    return None
+
+
+def map_homeless_data(data: list):
+    try:
         mapped_data = []
-        periods: set = set()
+        headers: set = set()
         genders: set = set()
-        schoolings: set = set()
-        ethinicities: set = set()
         regions: set = set()
-        for values in data['values']:
-            period = map_field(values[0])
-            periods.add(period)
-            birthday = map_field(values[2])
-            age = map_age(values[3])
-            gender = map_field(values[4])
-            genders.add(gender)
-            bolsa_familia = map_bolsa_familia(values[5])
-            schooling = map_field(values[7])
-            schoolings.add(schooling)
-            ethnicity = map_field(values[8])
-            ethinicities.add(ethnicity)
-            region = map_field(values[12])
-            regions.add(region)
-            year = map_year(values[14])
-            age_bracket = map_age_bracket(values[3])
-            mapped_data.append((period, birthday, age, gender,
-                                bolsa_familia, schooling, ethnicity, region, year, age_bracket))
+        ages: set = set()
+        ethinicities: set = set()
+        schoolings: set = set()
+        birthdays: set = set()
+        periods: set = set()
+        social_welfares: set = set()
+        month_years: set = set()
+        for file_data in data:
+            headers.update(file_data['headers'])
+            gender_index = file_data['headers'].index('SEXO')
+            region_index = file_data['headers'].index('REGIONAL')
+            age_index = file_data['headers'].index('IDADE')
+            ethnicity_index = file_data['headers'].index('COR_RACA')
+            schooling_index = file_data['headers'].index('GRAU_INSTRUCAO')
+            birthday_index = file_data['headers'].index('DATA_NASCIMENTO')
+            period_index = get_period_index(file_data['headers'])
+            social_welfare_index = get_social_welfare_index(
+                file_data['headers'])
+            month_year_index = file_data['headers'].index('MES_ANO_REFERENCIA')
+            for values in file_data['values']:
+                gender = map_gender(values[gender_index])
+                genders.add(gender)
+                region = map_region(values[region_index])
+                regions.add(region)
+                age = map_age(values[age_index])
+                ages.add(age)
+                ethnicity = map_ethnicity(values[ethnicity_index])
+                ethinicities.add(ethnicity)
+                schooling = map_schooling(values[schooling_index])
+                schoolings.add(schooling)
+                birthday = map_birthday(values[birthday_index])
+                birthdays.add(birthday)
+                period = values[period_index]
+                periods.add(period)
+                social_welfare = map_social_welfare(
+                    values[social_welfare_index])
+                social_welfares.add(social_welfare)
+                month_year = map_month_year(values[month_year_index])
+                month_years.add(month_year)
+                mapped_data.append((month_year, age,  gender, birthday,
+                                    schooling, ethnicity, region, period, social_welfare))
     except Exception as err:
-        print(reader.lang('reader_read_data_error').format(
+        print(reader.lang('reader_map_data_error').format(
             'static/csv/homeless', err))
-    
-    final_data = {'ranges':
-                    {"periods": periods, "genders": genders,
-                    "schoolings": schoolings, "ethinicities": ethinicities, "regions": regions},
-                    "data": mapped_data}
-    pprint.pprint(reader.lang('reader_read_data_done').format(
-        'static/csv/homeless', str(final_data['ranges']), len(final_data['data'])))
-    return final_data
+    else:
+        print(reader.lang('reader_map_data_done').format(
+            'static/csv/homeless', len(mapped_data)))
+        return mapped_data
