@@ -1,26 +1,28 @@
-from dotenv import dotenv_values
+from dotenv import (dotenv_values)
 
 env = dotenv_values(".env")
 
-CONFIG = {
-    'user': env["USER"],
-    'password': env["PASSWORD"],
+DB_CONFIG = {
     'host': env["HOST"],
-    'raise_on_warnings': True
+    'password': env["PASSWORD"],
+    'raise_on_warnings': True,
+    'user': env["USER"],
 }
-
 
 DB_NAME = 'puc_database'
 
-CREATE_DATABASE_QUERY = "CREATE DATABASE IF NOT EXISTS {} DEFAULT CHARACTER SET 'UTF8MB4'"
+CREATE_DB_QUERY = "CREATE DATABASE IF NOT EXISTS {} DEFAULT CHARACTER SET 'UTF8MB4'"
 
-DROP_DATABASE_QUERY = "DROP DATABASE IF EXISTS {}"
+DROP_DB_QUERY = "DROP DATABASE IF EXISTS {}"
 
 TABLES = {}
 
 TABLES['homeless'] = {}
 
-TABLES['homeless']["create"] = (
+TABLES['homeless']['header'] = ['month_year', 'age', 'gender', 'birthday',
+                                'schooling', 'ethnicity', 'region', 'period', 'social_welfare']
+
+TABLES['homeless']["create_query"] = (
     '''CREATE TABLE IF NOT EXISTS `{}`.`homeless` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `month_year` VARCHAR(45) NOT NULL,
@@ -37,11 +39,9 @@ TABLES['homeless']["create"] = (
     ENGINE = InnoDB''')
 
 
-TABLES['homeless']["insert"] = (
+TABLES['homeless']["insert_query"] = (
     '''INSERT INTO `{0}`.`homeless`
     (month_year, age, gender, birthday, schooling, ethnicity, region, period, social_welfare)
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)''')
 
-
-TABLES['homeless']['header'] = ['month_year', 'age', 'gender', 'birthday',
-                                'schooling', 'ethnicity', 'region', 'period', 'social_welfare']
+TABLES['homeless']["select_query"] = ("SELECT * FROM homeless")
