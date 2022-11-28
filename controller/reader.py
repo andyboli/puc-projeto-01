@@ -7,7 +7,7 @@ import datetime
 
 
 def lang(key: str) -> str:
-    return pd.read_json(path_or_buf='static/json/lang.json', orient='index').to_dict()[0][key]
+    return pd.read_json(path_or_buf='assets/json/lang.json', orient='index').to_dict()[0][key]
 
 
 def read_csv(filepath: str):
@@ -21,8 +21,7 @@ def read_csv(filepath: str):
 
 def read_data(table: str):
     try:
-        dir = 'static/csv/{}'.format(table)
-        print(reader.lang('reader_read_data_start').format(dir))
+        dir = 'assets/csv/{}'.format(table)
         files_path = os.listdir(dir)
         data = []
         data_length = 0
@@ -31,11 +30,10 @@ def read_data(table: str):
             data.append(csv_data)
             data_length += len(csv_data['values'])
     except Exception as err:
-        print(reader.lang('reader_read_data_error').format(dir, err))
+        return None, None, reader.lang('reader_read_data_error').format(dir, err)
     else:
-        print(reader.lang('reader_read_data_done').format(
-            dir, data_length))
-        return data
+        return data, reader.lang('reader_read_data_done').format(
+            dir, data_length), None
 
 
 def map_region(region):
@@ -202,15 +200,6 @@ def map_homeless_data(data: list):
     try:
         mapped_data = []
         headers: set = set()
-        genders: set = set()
-        regions: set = set()
-        ages: set = set()
-        ethinicities: set = set()
-        schoolings: set = set()
-        birthdays: set = set()
-        periods: set = set()
-        social_welfares: set = set()
-        month_years: set = set()
         for file_data in data:
             headers.update(file_data['headers'])
             gender_index = file_data['headers'].index('SEXO')
@@ -225,30 +214,56 @@ def map_homeless_data(data: list):
             month_year_index = file_data['headers'].index('MES_ANO_REFERENCIA')
             for values in file_data['values']:
                 gender = map_gender(values[gender_index])
-                genders.add(gender)
                 region = map_region(values[region_index])
-                regions.add(region)
                 age = map_age(values[age_index])
-                ages.add(age)
                 ethnicity = map_ethnicity(values[ethnicity_index])
-                ethinicities.add(ethnicity)
                 schooling = map_schooling(values[schooling_index])
-                schoolings.add(schooling)
                 birthday = map_birthday(values[birthday_index])
-                birthdays.add(birthday)
                 period = values[period_index]
-                periods.add(period)
                 social_welfare = map_social_welfare(
                     values[social_welfare_index])
-                social_welfares.add(social_welfare)
                 month_year = map_month_year(values[month_year_index])
-                month_years.add(month_year)
                 mapped_data.append((month_year, age,  gender, birthday,
                                     schooling, ethnicity, region, period, social_welfare))
     except Exception as err:
-        print(reader.lang('reader_map_data_error').format(
-            'static/csv/homeless', err))
+        return None, None, reader.lang('reader_map_data_error').format(
+            'assets/csv/homeless', err)
     else:
-        print(reader.lang('reader_map_data_done').format(
-            'static/csv/homeless', len(mapped_data)))
-        return mapped_data
+        return mapped_data, reader.lang('reader_map_data_done').format(
+            'assets/csv/homeless', len(mapped_data)), None
+
+
+def data_range(mapped_data: list):
+    headers = ["month_year", "age",  "gender", "birthday",
+               "schooling", "ethnicity", "region", "period", "social_welfare"]
+    month_years: set = set()
+    ages: set = set()
+    genders: set = set()
+    birthdays: set = set()
+    schoolings: set = set()
+    ethinicities: set = set()
+    regions: set = set()
+    periods: set = set()
+    social_welfares: set = set()
+    for data in mapped_data:
+        month_years.add(data[0])
+        ages.add(data[1])
+        genders.add(data[2])
+        birthdays.add(data[3])
+        schoolings.add(data[4])
+        ethinicities.add(data[5])
+        regions.add(data[6])
+        periods.add(data[7])
+        social_welfares.add(data[8])
+    return {
+        headers,
+        month_years,
+        ages,
+        genders,
+        birthdays,
+        schoolings,
+        ethinicities,
+        regions,
+        periods,
+        social_welfares,
+    }
