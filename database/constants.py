@@ -45,3 +45,7 @@ TABLES['homeless']["insert_query"] = (
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)''')
 
 TABLES['homeless']["select_query"] = ("SELECT * FROM homeless")
+
+
+TABLES['homeless']['headers'] = ["month_year", "age",  "gender", "birthday",
+                                 "schooling", "ethnicity", "region", "period", "social_welfare"]

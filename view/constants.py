@@ -1,0 +1,36 @@
+COMPONENTS_IDS = {
+    "start_app_button_spinner": "start-app-button-spinner",
+    "start_app_button_text": "start-app-button-text",
+    "start_app_button": "start-app-button",
+    "end_app_button_text": "end-app-button-text",
+    "end_app_button": "end-app-button",
+    "database_button_text": "database-button-text",
+    "database_button": "database-button",
+    "bar_chart_button_text": 'bar-chart-button-text',
+    "bar_chart_button": 'bar-chart-button',
+    "pie_chart_button_text": 'pie-chart-button-text',
+    "pie_chart_button": 'pie-chart-button',
+    'app_interval': 'app-interval',
+    "bar_chart_first_dimension_dropdown": 'bar-chart-first-dimension-dropdown',
+    "bar_chart_second_dimension_dropdown": 'bar-chart-second-dimension-dropdown',
+    "bar_chart_third_dimension_dropdown": 'bar-chart-third-dimension-dropdown',
+    "pie_chart_first_dimension_dropdown": 'pie-chart-first-dimension-dropdown',
+    "pie_chart_second_dimension_dropdown": 'pie-chart-second-dimension-dropdown',
+    'status_section': 'status-section',
+    'charts_button': 'charts-button',
+    'control_section': "control-section",
+    "app_buttons": "app-buttons",
+    "hide_charts_button": "hide-charts-button",
+    'charts_section': 'charts-section',
+    'pie_chart_dropdowns': 'pie-chart-dropdowns',
+    'bar_chart_dropdowns': 'bar-chart-dropdowns',
+    'info_cards': 'info-cards',
+    'charts_buttons': 'chart-buttons'
+}
+
+STORE_STATE = {
+    "done": "done",
+    "error": "error",
+    "loading": "loading",
+    "success": "success",
+}
