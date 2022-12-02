@@ -25,7 +25,9 @@ COMPONENTS_IDS = {
     'pie_chart_dropdowns': 'pie-chart-dropdowns',
     'bar_chart_dropdowns': 'bar-chart-dropdowns',
     'info_cards': 'info-cards',
-    'charts_buttons': 'chart-buttons'
+    'charts_buttons': 'chart-buttons',
+    'charts_buttons_section': 'charts-buttons-section',
+    'bar_chart': 'bar-chart'
 }
 
 STORE_STATE = {
@@ -33,4 +35,6 @@ STORE_STATE = {
     "error": "error",
     "loading": "loading",
     "success": "success",
+    "first_dimension": "first_dimension",
+    "second_dimension": "second_dimension"
 }

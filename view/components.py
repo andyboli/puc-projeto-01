@@ -21,7 +21,7 @@ def INTERVAL(id: str, max_intervals: int):
     return dcc.Interval(
         disabled=True,
         id=id,
-        interval=1*1000,
+        interval=2*1000,
         n_intervals=0,
         max_intervals=max_intervals
     )
@@ -39,12 +39,16 @@ def STORE(id: str):
     return dcc.Store(id=id)
 
 
-def COLUMN_SECTION(children: any = "", id=""):
-    return html.Div(children, className='default-section default-column-section default-hide-section', id=id)
+def COLUMN_SECTION(children: any = "", id="", hide=False):
+    if hide:
+        return html.Div(children, className='default-section default-column-section default-hide-section', id=id)
+    return html.Div(children, className='default-section default-column-section', id=id)
 
 
-def ROW_SECTION(children: any = "", id=""):
-    return html.Div(children, className='default-section default-row-section default-hide-section', id=id)
+def ROW_SECTION(children: any = "", id="", hide=False):
+    if hide:
+        return html.Div(children, className='default-section default-row-section default-hide-section', id=id)
+    return html.Div(children, className='default-section default-row-section', id=id)
 
 
 def MAIN_SECTION(children: any = ""):
@@ -71,9 +75,26 @@ def CARD(children):
     return html.Div(children, className='default-section default-white-section default-border')
 
 
-def DROPDOWN_ITEM(option: str):
-    return dbc.DropdownMenuItem(option)
+def DROPDOWN_ITEM(option: tuple, id):
+    key, value = option
+    return dbc.DropdownMenuItem(value, id=key + '-' + id)
 
 
-def DROPDOWN(options: list = [], id: str = ''):
-    return dbc.DropdownMenu([*map(DROPDOWN_ITEM, options)], id=id, label=lang("dropdown_label"), class_name='default-border')
+def DROPDOWN(options: dict = {}, id: str = ''):
+    return dbc.DropdownMenu([*map(lambda option: DROPDOWN_ITEM(option=option, id=id), options.items())], id=id, label=lang("dropdown_label"), class_name='default-border',)
+
+
+def BAR_GRAPH(id: str = ''):
+    return dcc.Graph(
+        figure={
+            'data': [
+                {'x': [3, 4, 5], 'y': [4, 1, 2], 'type': 'bar', 'name': 'SF'},
+                {'x': [1, 2, 3], 'y': [2, 4, 5],
+                 'type': 'bar', 'name': u'Montréal'},
+            ],
+            'layout': {
+                'title': 'Dash Data Visualization'
+            }
+        },
+        id=id,
+    )

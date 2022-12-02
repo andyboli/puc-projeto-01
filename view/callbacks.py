@@ -5,11 +5,13 @@ from controller.orchestrator import start_app, start_app_iterations
 from controller.reader import lang
 from view.constants import COMPONENTS_IDS, STORE_STATE
 from view.components import BAGDE
+from database.constants import TABLES
 
 
 def create_callbacks(app: Dash):
     hide_component = {'display': 'none'}
     show_component = {'display': 'flex'}
+    dropdown_options = TABLES['homeless']['headers_label']
 
     @app.callback(
         Output(
@@ -105,7 +107,7 @@ def create_callbacks(app: Dash):
             component_id=STORE_STATE["done"], component_property='data'),
     )
     def update_app_buttons(done):
-        if done:
+        if not done:
             return show_component
         return hide_component
 
@@ -133,8 +135,6 @@ def create_callbacks(app: Dash):
     @app.callback(
         Output(
             component_id=COMPONENTS_IDS["charts_section"], component_property='style'),
-        Output(
-            component_id=COMPONENTS_IDS["charts_buttons"], component_property='style'),
         Input(
             component_id=COMPONENTS_IDS["charts_button"], component_property='n_clicks_timestamp'),
         Input(
@@ -142,23 +142,23 @@ def create_callbacks(app: Dash):
     )
     def update_charts_section(charts_button_n_clicks_timestamp, hide_charts_button_n_clicks_timestamp):
         if charts_button_n_clicks_timestamp is None and hide_charts_button_n_clicks_timestamp is None:
-            return hide_component, hide_component
+            return hide_component
         if charts_button_n_clicks_timestamp is not None and hide_charts_button_n_clicks_timestamp is None:
-            return show_component, show_component
+            return show_component
         if charts_button_n_clicks_timestamp is None and hide_charts_button_n_clicks_timestamp is not None:
-            return hide_component, hide_component
+            return hide_component
         if charts_button_n_clicks_timestamp > hide_charts_button_n_clicks_timestamp:
-            return show_component, show_component
+            return show_component
         if charts_button_n_clicks_timestamp < hide_charts_button_n_clicks_timestamp:
-            return hide_component, hide_component
-        return hide_component, hide_component
+            return hide_component
+        return hide_component
 
     @app.callback(
         Output(
             component_id=COMPONENTS_IDS["pie_chart_dropdowns"], component_property='style'),
-        Input(component_id='pie-chart-button',
+        Input(component_id=COMPONENTS_IDS['pie_chart_button'],
               component_property='n_clicks_timestamp'),
-        Input(component_id='bar-chart-button',
+        Input(component_id=COMPONENTS_IDS['bar_chart_button'],
               component_property='n_clicks_timestamp'),
     )
     def update_pie_chart_dropdowns(pie_chart_dropdown_click, bar_chart_dropdown_click):
@@ -177,9 +177,9 @@ def create_callbacks(app: Dash):
     @app.callback(
         Output(
             component_id=COMPONENTS_IDS["bar_chart_dropdowns"], component_property='style'),
-        Input(component_id='pie-chart-button',
+        Input(component_id=COMPONENTS_IDS['pie_chart_button'],
               component_property='n_clicks_timestamp'),
-        Input(component_id='bar-chart-button',
+        Input(component_id=COMPONENTS_IDS['bar_chart_button'],
               component_property='n_clicks_timestamp'),
     )
     def update_bar_chart_dropdowns(pie_chart_dropdown_click, bar_chart_dropdown_click):
@@ -195,6 +195,145 @@ def create_callbacks(app: Dash):
             return hide_component
         return hide_component
 
+    @app.callback(
+        Output(
+            component_id=COMPONENTS_IDS["bar_chart"], component_property='style'),
+        Input(component_id=COMPONENTS_IDS['pie_chart_button'],
+              component_property='n_clicks_timestamp'),
+        Input(component_id=COMPONENTS_IDS['bar_chart_button'],
+              component_property='n_clicks_timestamp'),
+    )
+    def update_bar_chart(pie_chart_dropdown_click, bar_chart_dropdown_click):
+        if bar_chart_dropdown_click is None and pie_chart_dropdown_click is None:
+            return hide_component
+        if bar_chart_dropdown_click is not None and pie_chart_dropdown_click is None:
+            return show_component
+        if bar_chart_dropdown_click is None and pie_chart_dropdown_click is not None:
+            return hide_component
+        if bar_chart_dropdown_click > pie_chart_dropdown_click:
+            return show_component
+        if bar_chart_dropdown_click < pie_chart_dropdown_click:
+            return hide_component
+        return hide_component
+
+    @app.callback(
+        Output(
+            component_id=STORE_STATE["first_dimension"], component_property='data'),
+        Input(component_id='age' '-' + COMPONENTS_IDS['bar_chart_first_dimension_dropdown'],
+              component_property="n_clicks_timestamp"),
+        Input(component_id="gender" + '-' + COMPONENTS_IDS['bar_chart_first_dimension_dropdown'],
+              component_property="n_clicks_timestamp"),
+        Input(component_id="schooling" + '-' + COMPONENTS_IDS['bar_chart_first_dimension_dropdown'],
+              component_property="n_clicks_timestamp"),
+        Input(component_id="ethnicity" + '-' + COMPONENTS_IDS['bar_chart_first_dimension_dropdown'],
+              component_property="n_clicks_timestamp"),
+        Input(component_id="region" + '-' + COMPONENTS_IDS['bar_chart_first_dimension_dropdown'],
+              component_property="n_clicks_timestamp"),
+        Input(component_id="period" + '-' + COMPONENTS_IDS['bar_chart_first_dimension_dropdown'],
+              component_property="n_clicks_timestamp"),
+        Input(component_id="month_year" + '-' + COMPONENTS_IDS['bar_chart_first_dimension_dropdown'],
+              component_property="n_clicks_timestamp"),
+        Input(component_id="social_welfare" + '-' + COMPONENTS_IDS['bar_chart_first_dimension_dropdown'],
+              component_property="n_clicks_timestamp"),
+    )
+    def update_first_dimension(age_timestamp, gender_timestamp, schooling_timestamp, ethnicity_timestamp, region_timestamp, period_timestamp, month_year_timestamp, social_welfare_timestamp):
+        clicked_fields = list(filter(lambda dimension: dimension is not None, [age_timestamp, gender_timestamp, schooling_timestamp, ethnicity_timestamp,
+                                                                               region_timestamp, period_timestamp, month_year_timestamp, social_welfare_timestamp]))
+        current_timestamp = 0
+        if len(clicked_fields):
+            current_timestamp = max(clicked_fields)
+        if current_timestamp == age_timestamp:
+            return dropdown_options["age"]
+        if current_timestamp == gender_timestamp:
+            return dropdown_options["gender"]
+        if current_timestamp == schooling_timestamp:
+            return dropdown_options["schooling"]
+        if current_timestamp == ethnicity_timestamp:
+            return dropdown_options["ethnicity"]
+        if current_timestamp == region_timestamp:
+            return dropdown_options["region"]
+        if current_timestamp == period_timestamp:
+            return dropdown_options["period"]
+        if current_timestamp == month_year_timestamp:
+            return dropdown_options["month_year"]
+        if current_timestamp == social_welfare_timestamp:
+            return dropdown_options["social_welfare"]
+        return lang("dropdown_label")
+
+    @app.callback(
+        Output(
+            component_id=STORE_STATE["second_dimension"], component_property='data'),
+        Input(component_id='age' '-' + COMPONENTS_IDS['bar_chart_second_dimension_dropdown'],
+              component_property="n_clicks_timestamp"),
+        Input(component_id="gender" + '-' + COMPONENTS_IDS['bar_chart_second_dimension_dropdown'],
+              component_property="n_clicks_timestamp"),
+        Input(component_id="schooling" + '-' + COMPONENTS_IDS['bar_chart_second_dimension_dropdown'],
+              component_property="n_clicks_timestamp"),
+        Input(component_id="ethnicity" + '-' + COMPONENTS_IDS['bar_chart_second_dimension_dropdown'],
+              component_property="n_clicks_timestamp"),
+        Input(component_id="region" + '-' + COMPONENTS_IDS['bar_chart_second_dimension_dropdown'],
+              component_property="n_clicks_timestamp"),
+        Input(component_id="period" + '-' + COMPONENTS_IDS['bar_chart_second_dimension_dropdown'],
+              component_property="n_clicks_timestamp"),
+        Input(component_id="month_year" + '-' + COMPONENTS_IDS['bar_chart_second_dimension_dropdown'],
+              component_property="n_clicks_timestamp"),
+        Input(component_id="social_welfare" + '-' + COMPONENTS_IDS['bar_chart_second_dimension_dropdown'],
+              component_property="n_clicks_timestamp"),
+    )
+    def update_second_dimension(age_timestamp, gender_timestamp, schooling_timestamp, ethnicity_timestamp, region_timestamp, period_timestamp, month_year_timestamp, social_welfare_timestamp):
+        clicked_fields = list(filter(lambda dimension: dimension is not None, [age_timestamp, gender_timestamp, schooling_timestamp, ethnicity_timestamp,
+                                                                               region_timestamp, period_timestamp, month_year_timestamp, social_welfare_timestamp]))
+        current_timestamp = 0
+        if len(clicked_fields):
+            current_timestamp = max(clicked_fields)
+        if current_timestamp == age_timestamp:
+            return dropdown_options["age"]
+        if current_timestamp == gender_timestamp:
+            return dropdown_options["gender"]
+        if current_timestamp == schooling_timestamp:
+            return dropdown_options["schooling"]
+        if current_timestamp == ethnicity_timestamp:
+            return dropdown_options["ethnicity"]
+        if current_timestamp == region_timestamp:
+            return dropdown_options["region"]
+        if current_timestamp == period_timestamp:
+            return dropdown_options["period"]
+        if current_timestamp == month_year_timestamp:
+            return dropdown_options["month_year"]
+        if current_timestamp == social_welfare_timestamp:
+            return dropdown_options["social_welfare"]
+        return lang("dropdown_label")
+
+    @app.callback(
+        Output(
+            component_id=COMPONENTS_IDS["bar_chart_first_dimension_dropdown"], component_property='label'),
+        Input(
+            component_id=STORE_STATE["first_dimension"], component_property='data'),
+    )
+    def update_bar_chart_dropdown(first_dimension_value):
+        return first_dimension_value
+
+    @app.callback(
+        Output(
+            component_id=COMPONENTS_IDS["bar_chart_second_dimension_dropdown"], component_property='label'),
+        Input(
+            component_id=STORE_STATE["second_dimension"], component_property='data'),
+    )
+    def update_bar_chart_dropdown(first_dimension_value):
+        return first_dimension_value
+
+    #   @app.callback(
+    #     Output(
+    #         component_id=COMPONENTS_IDS["bar_chart"], component_property='figure'),
+    #     Input(component_id=COMPONENTS_IDS['bar_chart_first_dimension_dropdown'],
+    #           component_property='value'),
+    #     Input(component_id=COMPONENTS_IDS['bar_chart_second_dimension_dropdown'],
+    #           component_property='value'),
+    # )
+    # def update_bar_chart(first_dimension_value, second_dimension_value):
+    #     print(first_dimension_value)
+    #     print(second_dimension_value)
+    #     return None
         # @app.callback(
         #     Output(
         #         component_id=STORE_STATE["homeless_data_range"], component_property='data'),
