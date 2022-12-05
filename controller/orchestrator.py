@@ -1,104 +1,91 @@
 from controller.mapper import map_homeless_data
 from controller.reader import lang, read_data
-from database.connection import connect_database, create_database, create_tables, insert_table, drop_database, close_database, select_table
-from database.constants import DB_NAME
-
-
-def connect_app_iterator():
-    """ create database connection
-    connection: mysql oppened connection
-    message: success message
-    error: error message
-
-    return connection: MySQLConnection | None, message: str | None, error: str | None
-    """
-    connection, message, error = connect_database()
-    while True:
-        yield connection, message, error
-
-
-connect_app = connect_app_iterator()
+from database.connection import close_connection, connect_mysql, create_database, create_table, drop_database, get_query, insert_table, select_table
+from database.constants import PUC_DB, PUC_DB_HOMELESS
 
 
 start_app_iterations = 12
 
 
 def start_app_iterator():
-    """ create database, create tables, read homeless data, map homeless data and insert homeless data in homeless table
-    data_range: return homeless data range with all distinct values and headers
-    success: success message
-    loading: loading message
-    error: error message
+    """Calls create_database, create_table, read_data, map_homeless_data and insert_table with default values.
 
-    return success: str, loading: str, error: str
+    Yields:
+        success (str): Success message.
+        loading (str): Loading message.
+        error (str): Error message.
     """
-    yield '', lang('database_connect_start'), ''
-    connection, success, error = next(connect_app)
+    yield '', lang('open_connection_start'), ''
+    _, success, error = next(connect_mysql)
     yield success, '', error
 
-    yield '', lang(
-        'database_create_database_start').format(DB_NAME), ''
-    success, error = create_database(connection)
+    yield '', lang('create_database_start').format(PUC_DB), ''
+    success, error = create_database()
     yield success, '', error
 
-    yield '', lang('database_create_tables_start'), ''
-    success, error = create_tables(connection)
+    yield '', lang('create_table_start').format(PUC_DB_HOMELESS), ''
+    success, error = create_table()
     yield success, '', error
 
-    yield '', lang('read_data_start').format('assets/csv/{}'.format('homeless')), ''
-    homeless_data_raw, success, error = read_data(table='homeless')
+    yield '', lang('read_data_start').format('assets/csv/{}'.format(PUC_DB_HOMELESS)), ''
+    homeless_raw_data, success, error = read_data()
     yield success, '', error
 
-    yield '', lang('map_data_start').format('assets/csv/{}'.format('homeless')), ''
-    homeless_data, success, error = map_homeless_data(
-        data=homeless_data_raw)
+    yield '', lang('map_data_start').format('assets/csv/{}'.format(PUC_DB_HOMELESS)), ''
+    homeless_data, success, error = map_homeless_data(data=homeless_raw_data)
     yield success, '', error
 
-    yield '', lang('database_insert_table_start').format('homeless'), ''
-    success, error = insert_table(connection=connection,
-                                  table='homeless', data=homeless_data)
+    yield '', lang('insert_table_start').format(PUC_DB_HOMELESS), ''
+    success, error = insert_table(data=homeless_data)
     yield success, '', error
 
 
 start_app = start_app_iterator()
 
 
-def end_app_iterator():
-    """ drop database and close connection
-    success: success message
-    error: error message
+def restart_app_iterator():
+    """Calls drop_database and close_connection with default values.
 
-    return success: str, error: str
+    Yields:
+        success (str): Success message.
+        loading (str): Loading message.
+        error (str): Error message.
     """
     try:
-        start_app.close()
-        connection, _, _ = next(connect_app)
-        success, error = drop_database(connection)
-        yield success, error
-        success = close_database(connection)
-        yield success, ''
-    except:
-        yield '', lang("end_app_error")
+        yield '', lang('drop_database_start'), ''
+        success, error = drop_database()
+        yield success, '', error
+
+        yield '', lang('close_connection_start'), ''
+        success, error = close_connection()
+        yield success, '', error
+    except Exception as err:
+        yield '', '', lang("restart_app_error").format(err)
 
 
-end_app = end_app_iterator()
+restart_app = restart_app_iterator()
 
 
-def map_date(dateString: str):
-    split_date = dateString.split('-')
-    year = split_date[0]
-    month = split_date[1]
-    return year, month
+def select_data_iterator(first_column: str, second_column: str, first_column_value: str, max_year: str, min_year: str, min_month: str, max_month: str):
+    """Calls select_table with default values.
 
+    Args:
+        first_column (str,): First column to group data.
+        second_column (str,): Second column to group data.
+        first_column_value (str): First column value to filter data.
+        max_year (str): Max year to filter data.
+        min_year (str): Min year to filter data.
+        min_month (str): Min month to filter data.
+        max_month (str): Max month to filter data.
 
-def select_app_iterator(column_1: str, column_2: str, max_year: str, min_year: str, min_month: str, max_month: str):
-    connection, _, _ = next(connect_app)
-    # loading = True
-    data = []
-
-    # while True:
-    #     yield
-    data, _, _ = select_table(connection=connection, column_1=column_1, column_2=column_2, max_year=max_year,
-                              min_year=min_year, min_month=min_month, max_month=max_month)
-
-    return data
+    Yields:
+        data (list): Data filtered from table
+        success (str): Success message.
+        loading (str): Loading message.
+        error (str): Error message.
+    """
+    yield None, '', lang('select_table_start'), ''
+    table_query = get_query(first_column=first_column, second_column=second_column, first_column_value=first_column_value, max_year=max_year,
+                            min_year=min_year, min_month=min_month, max_month=max_month)
+    data, success, error = select_table(table_query=table_query)
+    yield data, success, '', error

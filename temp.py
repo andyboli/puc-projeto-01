@@ -85,3 +85,34 @@ print(rua)
 
 
 # GRAPH_SECTION = [BAR_GRAPH, PIE_GRAPH]
+
+
+HOMELESS_GENDERS = ['Masculino', 'Feminino']
+
+HOMELESS_REGIONS = [None, 'Oeste', 'Noroeste', 'Norte', 'Venda Nova',
+                    'Nordeste', 'Pampulha', 'Barreiro', 'Leste', 'Centro Sul']
+
+HOMELESS_ETHINICITIES = [None, 'Parda',
+                         'Indigena', 'Branca', 'Amarela', 'Preta']
+
+HOMELESS_SCHOOLINGS = ['Superior incompleto ou mais', None, 'Medio incompleto',
+                       'Sem instrucao', 'Medio completo', 'Fundamental completo', 'Fundamental incompleto']
+
+HOMELESS_PERIODS = ['Mais de dez anos', 'Entre dois e cinco anos', 'Ate seis meses',
+                    'Entre um e dois anos', 'Entre seis meses e um ano', 'Entre cinco e dez anos']
+
+
+HOMELESS_SOCIAL_WELFARES = [False, True]
+
+
+HOMELESS_AGES_RANGE = ['Menor de 1 ano', '1 a 4 anos', '5 a 9 anos', '10 a 14 anos', '15 a 19 anos', '20 a 29 anos', '30 a 39 anos',
+                       '40 a 49 anos', '50 a 59 anos', '60 a 69 anos', '70 a 79 anos', '80 anos e mais']
+
+HOMELESS_YEARS_RANGE = ['2019', '2020', '2021', '2022']
+
+HOMELESS_MONTHS_RANGE = ['01', '02', '03', '04', '05',
+                         '06', '07', '08', '09', '10', '11', '12']
+
+
+# table_query = get_query(first_column, second_column,
+#                             max_year, min_year, min_month, max_month)
