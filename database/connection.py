@@ -1,167 +1,233 @@
-from mysql.connector import (errorcode, MySQLConnection)
 import mysql.connector
+from mysql.connector import (errorcode, MySQLConnection)
 
 from controller.reader import lang
-from database.constants import DB_CONFIG, CREATE_DB_QUERY, DROP_DB_QUERY, DB_NAME, TABLES
+from database.constants import (CONNECTION_CONFIG, PUC_DB, PUC_DB_CREATE_QUERY, PUC_DB_HOMELESS_CREATE_QUERY, PUC_DB_HOMELESS_INSERT_QUERY,
+                                PUC_DB_HOMELESS_SELECT_QUERY_COLUMNS, PUC_DB_HOMELESS_SELECT_QUERY_PERIOD, PUC_DB_HOMELESS_SELECT_QUERY, PUC_DB_HOMELESS)
 
 
-def connect_database():
-    """open a connection with mysql
-    connection: mysql oppened connection
-    success: success message
-    error: error message
+def open_connection():
+    """Opens a connection to the MySQL server.
 
-    return data: MySQLConnection | None, success: str, error: str
+    Returns:
+        connection (MySQLConnection): MySQL oppened connection.
+        success (str): Success message.
+        error (str): Error message.
     """
+    connection = None
+    success = ''
+    error = ''
     try:
-        success = ''
-        error = ''
-        connection: MySQLConnection = mysql.connector.connect(**DB_CONFIG)
+        connection: MySQLConnection = mysql.connector.connect(
+            **CONNECTION_CONFIG)
         if not connection.is_connected():
-            raise errorcode.ER_HOST_IS_BLOCKED
+            error = lang('open_connection_error').format(err)
+        server_info = connection.get_server_info()
+        success = lang('open_connection_success').format(server_info)
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-            error = lang('database_connect_crendentials_error')
+            error = lang('open_connection_crendentials_error')
         else:
-            error = lang('database_connect_error').format(err)
-    else:
-        success = lang('database_connect_done').format(
-            connection.get_server_info())
+            error = lang('open_connection_error').format(err)
     finally:
         return connection, success, error
 
 
-def close_database(connection: MySQLConnection):
-    """close a connection with mysql
+def open_connection_iterator():
+    """Calls open_connection once and returns the same connection each time called.
 
-    return a success message
+    Yields:
+        connection (MySQLConnection): MySQL oppened connection.
+        success (str): Success message.
+        error (str): Error message.
     """
-    if connection.is_connected():
-        connection.close()
-    return lang('database_connect_close')
+    connection, message, error = open_connection()
+    while True:
+        yield connection, message, error
 
 
-def create_database(connection: MySQLConnection):
-    """create the puc_database database
-    success: success message
-    error: error message
+connect_mysql = open_connection_iterator()
 
-    return success: str, error: str
+
+def close_connection():
+    """Closes the MySQLConnection created by open_connection_iterator.
+
+    Returns:
+        success (str): Success message.
+        error (str): Error message.
     """
+    connection, _, _ = next(connect_mysql)
+    success = ''
+    error = ''
     try:
-        success = ''
-        error = ''
-        cursor = connection.cursor()
-        cursor.execute(
-            CREATE_DB_QUERY.format(DB_NAME))
-        connection.database = DB_NAME
-    except mysql.connector.Error as err:
-        error = lang('database_create_database_error').format(
-            DB_NAME, err)
-    else:
-        success = lang('database_create_database_done').format(
-            DB_NAME)
+        if connection.is_connected():
+            server_info = connection.get_server_info()
+            connection.close()
+            success = lang('close_connection_success').format(server_info)
+        error = lang('close_connection_error').format(errorcode.ER_NO_DB_ERROR)
+        connect_mysql.close()
+    except Exception as err:
+        error = lang('close_connection_error').format(err)
     finally:
-        cursor.close()
         return success, error
 
 
-def drop_database(connection: MySQLConnection):
-    """drop the puc_database database
-    success: success message
-    error: error message
+def create_database(db_name: str = PUC_DB, db_query=PUC_DB_CREATE_QUERY):
+    """Creates a database in the MySQLConnection created by open_connection_iterator.
 
-    return success: str, error: str
+    Args:
+        db_name (str, optional): Database name. Defaults to PUC_DB.
+        db_query (str, optional): Create database query. Defaults to PUC_DB_CREATE_QUERY.
+
+    Returns:
+        success (str): Success message.
+        error (str): Error message.
     """
+    connection, _, _ = next(connect_mysql)
+    success = ''
+    error = ''
     try:
-        success = ''
-        error = ''
         cursor = connection.cursor()
-        cursor.execute(
-            DROP_DB_QUERY.format(DB_NAME))
-    except mysql.connector.Error as err:
-        error = lang('database_drop_error').format(DB_NAME, err)
-    else:
-        success = lang('database_drop_done').format(DB_NAME)
-    finally:
+        cursor.execute(db_query)
+        connection.database = db_name
         cursor.close()
+        success = lang('create_database_success').format(db_name)
+    except mysql.connector.Error as err:
+        error = lang('create_database_error').format(db_name, err)
+    finally:
         return success, error
 
 
-def create_tables(connection: MySQLConnection):
-    """create all tables from tables constant in puc_database database
-    message: success message
-    error: error message
+def drop_database(db_name: str = PUC_DB, db_query=PUC_DB_CREATE_QUERY):
+    """Drops a database in the MySQLConnection created by open_connection_iterator.
 
-    return success: str, error: str
+    Args:
+        db_name (str, optional): Database name. Defaults to PUC_DB.
+        db_query (str, optional): Create database query. Defaults to PUC_DB_CREATE_QUERY.
+
+    Returns:
+        success (str): Success message.
+        error (str): Error message.
     """
+    connection, _, _ = next(connect_mysql)
+    success = ''
+    error = ''
     try:
-        success = ''
-        error = ''
         cursor = connection.cursor()
-        tables: dict[str, str] = TABLES
-        for table in tables:
-            try:
-                CREATE_TABLE_QUERY = tables[table]["create_query"]
-                cursor.execute(CREATE_TABLE_QUERY.format(
-                    DB_NAME))
-            except mysql.connector.Error as err:
-                error = lang(
-                    'database_create_tables_table_error').format(table, err)
-                break
-    except mysql.connector.Error as err:
-        error = lang('database_create_tables_error').format(err)
-    else:
-        success = lang('database_create_tables_done')
-    finally:
+        cursor.execute(db_query.format(db_name))
         cursor.close()
+        success = lang('drop_database_success').format(db_name)
+    except mysql.connector.Error as err:
+        error = lang('drop_database_error').format(db_name, err)
+    finally:
         return success, error
 
 
-def insert_table(connection: MySQLConnection, table: str, data: list):
-    """insert a list of data in a table
-    message: success message
-    error: error message
+def create_table(table_name: str = PUC_DB_HOMELESS, table_query=PUC_DB_HOMELESS_CREATE_QUERY):
+    """Creates a table in the MySQLConnection created by open_connection_iterator
 
-    return success: str, error: str
+    Args:
+        table_name (str, optional): Table name. Defaults to PUC_DB_HOMELESS.
+        table_query (str, optional): Create table query. Defaults to PUC_DB_HOMELESS_CREATE_QUERY.
+
+    Returns:
+        success (str): Success message.
+        error (str): Error message.
     """
+    connection, _, _ = next(connect_mysql)
+    success = ''
+    error = ''
     try:
-        success = ''
-        error = ''
         cursor = connection.cursor()
-        INSERT_TABLE_QUERY: str = TABLES[table]["insert_query"].format(
-            DB_NAME)
-        cursor.executemany(INSERT_TABLE_QUERY, data)
+        cursor.execute(table_query)
+        cursor.close()
+        success = lang('create_table_success').format(table_name)
+    except mysql.connector.Error as err:
+        error = lang(
+            'create_table_error').format(table_name, err)
+    finally:
+        return success, error
+
+
+def insert_table(data: list, table_name: str = PUC_DB_HOMELESS, table_query: str = PUC_DB_HOMELESS_INSERT_QUERY):
+    """Populates a table in the MySQLConnection created by open_connection_iterator
+
+    Args:
+        data (list): Data to be populated in table
+        table_name (str, optional): Table name. Defaults to PUC_DB_HOMELESS.
+        table_query (str, optional): Create table query. Defaults to PUC_DB_HOMELESS_INSERT_QUERY.
+
+    Returns:
+        success (str): Success message.
+        error (str): Error message.
+    """
+    connection, _, _ = next(connect_mysql)
+    success = ''
+    error = ''
+    try:
+        cursor = connection.cursor()
+        cursor.executemany(table_query, data)
         connection.commit()
-    except mysql.connector.Error as err:
-        error = lang('database_insert_table_error').format(table, err)
-    else:
-        success = lang('database_insert_table_done').format(
-            table, cursor.rowcount)
-    finally:
         cursor.close()
+        success = lang('insert_table_success').format(
+            table_name, cursor.rowcount)
+    except mysql.connector.Error as err:
+        error = lang('insert_table_error').format(table_name, err)
+    finally:
         return success, error
 
 
-def select_table(connection: MySQLConnection, column_1: str, column_2: str, max_year: str, min_year: str, min_month: str, max_month: str):
+def get_query(first_column: str = '', second_column: str = '', first_column_value: str = '', max_year: str = '', min_year: str = '', min_month: str = '', max_month: str = ''):
+    """Get table query depending on the parameters
+
+    Args:
+        first_column (str, optional): First column to group data. Defaults to ''.
+        second_column (str, optional): Second column to group data. Defaults to ''.
+        first_column_value (str, optional): First column value to filter data. Defaults to ''.
+        max_year (str, optional): Max year to filter data. Defaults to ''.
+        min_year (str, optional): Min year to filter data. Defaults to ''.
+        min_month (str, optional): Min month to filter data. Defaults to ''.
+        max_month (str, optional): Max month to filter data. Defaults to ''.
+
+    Returns:
+        table_query (str): Correct table query
+    """
+    table_query = PUC_DB_HOMELESS_SELECT_QUERY
+    hasColumns = bool(first_column and second_column and first_column_value)
+    hasPeriod = bool(max_year and min_year and min_month and max_month)
+    if hasColumns and hasPeriod:
+        table_query = PUC_DB_HOMELESS_SELECT_QUERY_PERIOD.format(
+            first_column=first_column, second_column=second_column, first_column_value=first_column_value, max_year=max_year, min_year=min_year, min_month=min_month, max_month=max_month)
+    if hasColumns and not hasPeriod:
+        table_query = PUC_DB_HOMELESS_SELECT_QUERY_COLUMNS.format(
+            first_column=first_column, second_column=second_column)
+    return table_query
+
+
+def select_table(table_name: str = PUC_DB_HOMELESS, table_query: str = PUC_DB_HOMELESS_SELECT_QUERY):
+    """Select data from a table in the MySQLConnection created by open_connection_iterator
+
+    Args:
+        table_name (str, optional): Table name. Defaults to PUC_DB_HOMELESS.
+        table_query (str, optional): Create table query. Defaults to PUC_DB_HOMELESS_SELECT_QUERY.
+
+    Returns:
+        data (list): Data filtered from table
+        success (str): Success message.
+        error (str): Error message.
+    """
+    connection, _, _ = next(connect_mysql)
+    data = []
+    success = ''
+    error = ''
     try:
-        success = ''
-        error = ''
-        data = []
         cursor = connection.cursor()
-        SELECT_TABLE_QUERY = TABLES['homeless']["select_query"].format(
-            column_1=column_1, column_2=column_2, db=DB_NAME)
-        if (max_year and min_year and max_month and min_month):
-            SELECT_TABLE_QUERY = TABLES['homeless']["select_query_period"].format(
-                column_1=column_1, column_2=column_2, max_year=max_year, min_year=min_year, max_month=max_month, min_month=min_month, db=DB_NAME)
-        print(SELECT_TABLE_QUERY)
-        cursor.execute(SELECT_TABLE_QUERY)
+        cursor.execute(table_query)
         data = list(cursor.fetchall())
-    except mysql.connector.Error as err:
-        error = lang('database_insert_table_error').format('homeless', err)
-    else:
-        success = lang('database_insert_table_done').format(
-            'homeless', cursor.rowcount)
-    finally:
         cursor.close()
+        success = lang('select_table_success').format(
+            table_name, cursor.rowcount)
+    except mysql.connector.Error as err:
+        error = lang('select_table_error').format(table_name, err)
+    finally:
         return data, success, error

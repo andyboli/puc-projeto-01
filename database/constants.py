@@ -1,147 +1,83 @@
 from dotenv import dotenv_values
 
 
-env = dotenv_values(".env")
+env = dotenv_values('.env')
 
-DB_CONFIG = {
-    'host': env["HOST"],
-    'password': env["PASSWORD"],
+CONNECTION_CONFIG = {
+    'host': env['HOST'],
+    'password': env['PASSWORD'],
     'raise_on_warnings': True,
-    'user': env["USER"],
+    'user': env['USER'],
 }
 
-DB_NAME = 'puc_database'
+PUC_DB = 'puc_database'
 
-CREATE_DB_QUERY = "CREATE DATABASE IF NOT EXISTS {} DEFAULT CHARACTER SET 'UTF8MB4'"
+PUC_DB_CREATE_QUERY = 'CREATE DATABASE IF NOT EXISTS {db_name} DEFAULT CHARACTER SET "UTF8MB4"'.format(
+    db_name=PUC_DB)
 
-DROP_DB_QUERY = "DROP DATABASE IF EXISTS {}"
+PUC_DB_DROP_QUERY = 'DROP DATABASE IF EXISTS {db_name}'.format(db_name=PUC_DB)
 
-TABLES = {}
+PUC_DB_HOMELESS = 'homeless'
 
-TABLES['homeless'] = {}
+AGE_COLUMN = 'age'
+BIRTHDAY_COLUMN = 'birthday'
+ETHNICITY_COLUMN = 'ethnicity'
+GENDER_COLUMN = 'gender'
+MONTH_YEAR_COLUMN = 'month_year'
+PERIOD_COLUMN = 'period'
+REGION_COLUMN = 'region'
+SCHOOLING_COLUMN = 'schooling'
+SOCIAL_WELFARE_COLUMN = 'social_welfare'
 
-TABLES['homeless']['header'] = ['month_year', 'age', 'gender', 'birthday',
-                                'schooling', 'ethnicity', 'region', 'period', 'social_welfare']
+PUC_DB_HOMELESS_COLUMNS = (MONTH_YEAR_COLUMN, AGE_COLUMN, GENDER_COLUMN, BIRTHDAY_COLUMN,
+                           SCHOOLING_COLUMN, ETHNICITY_COLUMN, REGION_COLUMN, PERIOD_COLUMN, SOCIAL_WELFARE_COLUMN)
 
-TABLES['homeless']["create_query"] = (
-    '''CREATE TABLE IF NOT EXISTS `{}`.`homeless` (
-    `id` INT NOT NULL AUTO_INCREMENT,
-    `month_year` VARCHAR(45) NOT NULL,
-    `age` INT NULL,
-    `gender` VARCHAR(45) NULL,
-    `birthday` VARCHAR(45) NULL,
-    `schooling` VARCHAR(45) NULL,
-    `ethnicity` VARCHAR(45) NULL,
-    `region` VARCHAR(45) NULL,
-    `period` VARCHAR(45) NOT NULL,
-    `social_welfare` TINYINT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE INDEX `idhomeless_UNIQUE` (`id` ASC) VISIBLE)
-    ENGINE = InnoDB''')
+PUC_DB_HOMELESS_CREATE_QUERY = '''CREATE TABLE IF NOT EXISTS {db_name}.{table_name}(
+    id INT NOT NULL AUTO_INCREMENT,
+    {0} VARCHAR(45) NOT NULL,
+    {1} INT NULL,
+    {2} VARCHAR(45) NULL,
+    {3} VARCHAR(45) NULL,
+    {4} VARCHAR(45) NULL,
+    {5} VARCHAR(45) NULL,
+    {6} VARCHAR(45) NULL,
+    {7} VARCHAR(45) NOT NULL,
+    {8} TINYINT NULL,
+    PRIMARY KEY (id),
+    UNIQUE INDEX idhomeless_UNIQUE (id ASC) VISIBLE)
+    ENGINE = InnoDB)'''.format(db_name=PUC_DB, table_name=PUC_DB_HOMELESS, *PUC_DB_HOMELESS_COLUMNS)
 
-
-TABLES['homeless']["insert_query"] = (
-    '''INSERT INTO `{0}`.`homeless`
-    (month_year, age, gender, birthday, schooling, ethnicity, region, period, social_welfare)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)''')
-
-
-TABLES['homeless']["select_query"] = (
-    "SELECT COUNT(*) AS amount, {column_1}, {column_2} FROM {db}.homeless GROUP BY {column_1}, {column_2}")
-
-TABLES['homeless']["select_query_period"] = (
-    "SELECT COUNT(*) AS amount, {column_1}, {column_2} FROM {db}.homeless WHERE CAST(SUBSTRING(month_year, -4, 4) AS SIGNED) >= {min_year} and CAST(SUBSTRING(month_year, -4, 4) AS SIGNED) <= {max_year} and CAST(SUBSTRING(month_year, -7, 2) AS SIGNED) >= {min_month} and CAST(SUBSTRING(month_year, -7, 2) AS SIGNED) <= {max_month} GROUP BY {column_1}, {column_2}")
-
-TABLES['homeless']["select_query_all"] = (
-    "SELECT * FROM `{0}`.`homeless` LIMIT 50")
-
-HOMELESS_GENDERS = ['Masculino', 'Feminino']
-
-HOMELESS_REGIONS = [None, 'Oeste', 'Noroeste', 'Norte', 'Venda Nova',
-                    'Nordeste', 'Pampulha', 'Barreiro', 'Leste', 'Centro Sul']
-
-HOMELESS_ETHINICITIES = [None, 'Parda',
-                         'Indigena', 'Branca', 'Amarela', 'Preta']
-
-HOMELESS_SCHOOLINGS = ['Superior incompleto ou mais', None, 'Medio incompleto',
-                       'Sem instrucao', 'Medio completo', 'Fundamental completo', 'Fundamental incompleto']
-
-HOMELESS_PERIODS = ['Mais de dez anos', 'Entre dois e cinco anos', 'Ate seis meses',
-                    'Entre um e dois anos', 'Entre seis meses e um ano', 'Entre cinco e dez anos']
+PUC_DB_HOMELESS_INSERT_QUERY = 'INSERT INTO {db_name}.{table_name} {db_headers} '.format(
+    db_name=PUC_DB, table_name=PUC_DB_HOMELESS, db_headers=PUC_DB_HOMELESS_COLUMNS) + '''VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'''
 
 
-HOMELESS_SOCIAL_WELFARES = [False, True]
+PUC_DB_HOMELESS_SELECT_QUERY_COLUMNS = 'SELECT COUNT(*) AS amount, {first_column}, {second_column} ' + 'FROM {db_name}.{table_name} '.format(
+    db_name=PUC_DB, table_name=PUC_DB_HOMELESS) + 'GROUP BY {first_column}, {second_column}'
+
+PUC_DB_HOMELESS_MAP_YEAR = 'CAST(SUBSTRING({column}, -4, 4) AS SIGNED)'.format(
+    column=MONTH_YEAR_COLUMN)
+
+PUC_DB_HOMELESS_MAP_MONTH = 'CAST(SUBSTRING({column}, -7, 2) AS SIGNED)'.format(
+    column=MONTH_YEAR_COLUMN)
+
+PUC_DB_HOMELESS_SELECT_QUERY_PERIOD = 'SELECT amount, {second_column} FROM (SELECT COUNT(*) AS amount, {first_column}, {second_column} ' + 'FROM {db_name}.{table_name} '.format(
+    db_name=PUC_DB, table_name=PUC_DB_HOMELESS) + 'WHERE {mapped_year} '.format(
+        mapped_year=PUC_DB_HOMELESS_MAP_YEAR) + '>= {min_year} ' + 'and {mapped_year} '.format(
+            mapped_year=PUC_DB_HOMELESS_MAP_YEAR) + '<= {max_year} ' + 'and {mapped_month} '.format(
+                mapped_month=PUC_DB_HOMELESS_MAP_MONTH) + '>= {min_month} ' + 'and {mapped_month} '.format(
+                    mapped_month=PUC_DB_HOMELESS_MAP_MONTH) + '<= {max_month} GROUP BY {first_column}, {second_column}) AS filted_columns WHERE {first_column} = {first_column_value}'
 
 
-HOMELESS_AGES_RANGE = ['Menor de 1 ano', '1 a 4 anos', '5 a 9 anos', '10 a 14 anos', '15 a 19 anos', '20 a 29 anos', '30 a 39 anos',
-                       '40 a 49 anos', '50 a 59 anos', '60 a 69 anos', '70 a 79 anos', '80 anos e mais']
-
-HOMELESS_YEARS_RANGE = ['2019', '2020', '2021', '2022']
-
-HOMELESS_MONTHS_RANGE = ['01', '02', '03', '04', '05',
-                         '06', '07', '08', '09', '10', '11', '12']
+PUC_DB_HOMELESS_SELECT_QUERY = 'SELECT * FROM {db_name}.{table_name} '.format(
+    db_name=PUC_DB, table_name=PUC_DB_HOMELESS) + 'LIMIT {limit} ORDER BY {column}'
 
 
-TABLES['homeless']['headers'] = ["month_year", "age", "gender",
-                                 "birthday", "schooling", "ethnicity", "region", "period", "social_welfare"]
-
-
-TABLES['homeless']['headers_label'] = {"age": 'Idade', "gender": "Gênero",
-                                       "schooling": 'Escolaridade', "ethnicity": "Etnia", "region": "Região", "social_welfare": "Benefícios sociais "}
-
-TABLES['homeless']['headers_ranges'] = {
-    "age": HOMELESS_AGES_RANGE,
-    "ethnicity": HOMELESS_ETHINICITIES,
-    "gender": HOMELESS_GENDERS,
-    "month_year": {'years_range': HOMELESS_YEARS_RANGE, 'months_range': HOMELESS_MONTHS_RANGE},
-    "period": HOMELESS_PERIODS,
-    "region": HOMELESS_REGIONS,
-    "schooling": HOMELESS_SCHOOLINGS,
-    "social_welfare": HOMELESS_SOCIAL_WELFARES,
+PUC_DB_HOMELESS_COLUMNS_LABELS = {
+    'age': 'Idade',
+    'ethnicity': 'Etnia',
+    'gender': 'Gênero',
+    'period': 'Período nas ruas',
+    'region': 'Região',
+    'schooling': 'Escolaridade',
+    'social_welfare': 'Benefícios sociais',
 }
-
-
-'''
-SELECT t1.name, t2.salary FROM employee AS t1, info AS t2
-  WHERE t1.name = t2.name;
-
-
-SELECT a, b, COUNT(c) AS t FROM test_table GROUP BY a,b ORDER BY a,t DESC;
-
-
-SELECT * FROM tbl LIMIT 5;
-
-
-SELECT college, region, seed FROM tournament
-  ORDER BY region, seed;
-
-
-SELECT COUNT(col1) AS col2 FROM t GROUP BY col2 HAVING col2 = 2;
-
-
-LIKE
-Utiliza os wildcards  _  e  %  para procurar por padrões de texto em uma string ou sequência de caracteres.
-Cada _ corresponde a um caracter.
-% corresponde a nenhum ou vários caracteres em uma sequência.
-Ex.: cidade LIKE ‘_elo Hori%’ retornaria a cidade Belo Horizonte.
-
-
-SELECT
-
-
-FROM nome_da_tabela1 JOIN ON nome_da_tabela2 JOIN ON ...
-WHERE condições
-GROUP BY nome_da_coluna
-HAVING condições
-ORDER BY nome_da_coluna1, ...
-FROM nome_da_tabela1, nome_da_tabela2, nome_da_tabela3, ...
-WHERE nome_da_tabela1.coluna_n = nome_da_tabela2.coluna_n AND nome_da_tabela3.coluna_n = nome_da_tabela1.coluna_n
-GROUP BY nome_da_coluna
-HAVING condições
-ORDER BY nome_da_coluna1, ...
-
-FROM nome_da_tabela1
-UNION [ALL]
-SELECT nome_da_coluna3, nome_da_coluna4
-FROM nome_da_tabela2
-'''
