@@ -1,6 +1,6 @@
 from controller.mapper import map_homeless_data
 from controller.reader import lang, read_data
-from database.connection import connect_database, create_database, create_tables, insert_table, drop_database, close_database
+from database.connection import connect_database, create_database, create_tables, insert_table, drop_database, close_database, select_table
 from database.constants import DB_NAME
 
 
@@ -84,5 +84,21 @@ def end_app_iterator():
 end_app = end_app_iterator()
 
 
-def select_app_iterator():
-    yield 'select_app'
+def map_date(dateString: str):
+    split_date = dateString.split('-')
+    year = split_date[0]
+    month = split_date[1]
+    return year, month
+
+
+def select_app_iterator(column_1: str, column_2: str, max_year: str, min_year: str, min_month: str, max_month: str):
+    connection, _, _ = next(connect_app)
+    # loading = True
+    data = []
+
+    # while True:
+    #     yield
+    data, _, _ = select_table(connection=connection, column_1=column_1, column_2=column_2, max_year=max_year,
+                              min_year=min_year, min_month=min_month, max_month=max_month)
+
+    return data

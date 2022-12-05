@@ -1,17 +1,19 @@
 from dash import Dash
 from dash.dependencies import Input, Output, State
 
-from controller.orchestrator import start_app, start_app_iterations
+from controller.orchestrator import start_app, start_app_iterations, map_date, select_app_iterator
 from controller.reader import lang
 from view.constants import COMPONENTS_IDS, STORE_STATE
 from view.components import BAGDE
 from database.constants import TABLES
+from database.connection import select_table
 
 
 def create_callbacks(app: Dash):
     hide_component = {'display': 'none'}
     show_component = {'display': 'flex'}
     dropdown_options = TABLES['homeless']['headers_label']
+    ranges = TABLES['homeless']['headers_ranges']
 
     @app.callback(
         Output(
@@ -107,6 +109,7 @@ def create_callbacks(app: Dash):
             component_id=STORE_STATE["done"], component_property='data'),
     )
     def update_app_buttons(done):
+        # monitoring
         if not done:
             return show_component
         return hide_component
@@ -219,6 +222,8 @@ def create_callbacks(app: Dash):
     @app.callback(
         Output(
             component_id=STORE_STATE["first_dimension"], component_property='data'),
+        Output(
+            component_id=STORE_STATE["first_dimension_label"], component_property='data'),
         Input(component_id='age' '-' + COMPONENTS_IDS['bar_chart_first_dimension_dropdown'],
               component_property="n_clicks_timestamp"),
         Input(component_id="gender" + '-' + COMPONENTS_IDS['bar_chart_first_dimension_dropdown'],
@@ -229,40 +234,40 @@ def create_callbacks(app: Dash):
               component_property="n_clicks_timestamp"),
         Input(component_id="region" + '-' + COMPONENTS_IDS['bar_chart_first_dimension_dropdown'],
               component_property="n_clicks_timestamp"),
-        Input(component_id="period" + '-' + COMPONENTS_IDS['bar_chart_first_dimension_dropdown'],
-              component_property="n_clicks_timestamp"),
-        Input(component_id="month_year" + '-' + COMPONENTS_IDS['bar_chart_first_dimension_dropdown'],
-              component_property="n_clicks_timestamp"),
         Input(component_id="social_welfare" + '-' + COMPONENTS_IDS['bar_chart_first_dimension_dropdown'],
               component_property="n_clicks_timestamp"),
     )
-    def update_first_dimension(age_timestamp, gender_timestamp, schooling_timestamp, ethnicity_timestamp, region_timestamp, period_timestamp, month_year_timestamp, social_welfare_timestamp):
-        clicked_fields = list(filter(lambda dimension: dimension is not None, [age_timestamp, gender_timestamp, schooling_timestamp, ethnicity_timestamp,
-                                                                               region_timestamp, period_timestamp, month_year_timestamp, social_welfare_timestamp]))
+    def update_first_dimension(age_timestamp, gender_timestamp, schooling_timestamp, ethnicity_timestamp, region_timestamp, social_welfare_timestamp):
+        selected_field = list(filter(lambda dimension: dimension is not None, [age_timestamp, gender_timestamp, schooling_timestamp, ethnicity_timestamp,
+                                                                               region_timestamp, social_welfare_timestamp]))
         current_timestamp = 0
-        if len(clicked_fields):
-            current_timestamp = max(clicked_fields)
-        if current_timestamp == age_timestamp:
-            return dropdown_options["age"]
-        if current_timestamp == gender_timestamp:
-            return dropdown_options["gender"]
-        if current_timestamp == schooling_timestamp:
-            return dropdown_options["schooling"]
-        if current_timestamp == ethnicity_timestamp:
-            return dropdown_options["ethnicity"]
-        if current_timestamp == region_timestamp:
-            return dropdown_options["region"]
-        if current_timestamp == period_timestamp:
-            return dropdown_options["period"]
-        if current_timestamp == month_year_timestamp:
-            return dropdown_options["month_year"]
-        if current_timestamp == social_welfare_timestamp:
-            return dropdown_options["social_welfare"]
-        return lang("dropdown_label")
 
-    @app.callback(
+        if len(selected_field):
+            current_timestamp = max(selected_field)
+
+        if current_timestamp == age_timestamp:
+            return "age", dropdown_options["age"]
+        if current_timestamp == gender_timestamp:
+            return "gender", dropdown_options["gender"],
+        if current_timestamp == schooling_timestamp:
+            return "schooling", dropdown_options["schooling"],
+        if current_timestamp == ethnicity_timestamp:
+            return "ethnicity", dropdown_options["ethnicity"],
+        if current_timestamp == region_timestamp:
+            return "region", dropdown_options["region"],
+        if current_timestamp == social_welfare_timestamp:
+            return "social_welfare", dropdown_options["social_welfare"]
+
+        # if current_timestamp == period_timestamp:
+        #     return "period", dropdown_options["period"], "region"
+
+        return "empty", lang("dropdown_label")
+
+    @ app.callback(
         Output(
             component_id=STORE_STATE["second_dimension"], component_property='data'),
+        Output(
+            component_id=STORE_STATE["second_dimension_label"], component_property='data'),
         Input(component_id='age' '-' + COMPONENTS_IDS['bar_chart_second_dimension_dropdown'],
               component_property="n_clicks_timestamp"),
         Input(component_id="gender" + '-' + COMPONENTS_IDS['bar_chart_second_dimension_dropdown'],
@@ -273,301 +278,146 @@ def create_callbacks(app: Dash):
               component_property="n_clicks_timestamp"),
         Input(component_id="region" + '-' + COMPONENTS_IDS['bar_chart_second_dimension_dropdown'],
               component_property="n_clicks_timestamp"),
-        Input(component_id="period" + '-' + COMPONENTS_IDS['bar_chart_second_dimension_dropdown'],
-              component_property="n_clicks_timestamp"),
-        Input(component_id="month_year" + '-' + COMPONENTS_IDS['bar_chart_second_dimension_dropdown'],
-              component_property="n_clicks_timestamp"),
         Input(component_id="social_welfare" + '-' + COMPONENTS_IDS['bar_chart_second_dimension_dropdown'],
               component_property="n_clicks_timestamp"),
     )
-    def update_second_dimension(age_timestamp, gender_timestamp, schooling_timestamp, ethnicity_timestamp, region_timestamp, period_timestamp, month_year_timestamp, social_welfare_timestamp):
-        clicked_fields = list(filter(lambda dimension: dimension is not None, [age_timestamp, gender_timestamp, schooling_timestamp, ethnicity_timestamp,
-                                                                               region_timestamp, period_timestamp, month_year_timestamp, social_welfare_timestamp]))
+    def update_second_dimension(age_timestamp, gender_timestamp, schooling_timestamp, ethnicity_timestamp, region_timestamp, social_welfare_timestamp):
+        selectec_field = list(filter(lambda dimension: dimension is not None, [age_timestamp, gender_timestamp, schooling_timestamp, ethnicity_timestamp,
+                                                                               region_timestamp, social_welfare_timestamp]))
         current_timestamp = 0
-        if len(clicked_fields):
-            current_timestamp = max(clicked_fields)
-        if current_timestamp == age_timestamp:
-            return dropdown_options["age"]
-        if current_timestamp == gender_timestamp:
-            return dropdown_options["gender"]
-        if current_timestamp == schooling_timestamp:
-            return dropdown_options["schooling"]
-        if current_timestamp == ethnicity_timestamp:
-            return dropdown_options["ethnicity"]
-        if current_timestamp == region_timestamp:
-            return dropdown_options["region"]
-        if current_timestamp == period_timestamp:
-            return dropdown_options["period"]
-        if current_timestamp == month_year_timestamp:
-            return dropdown_options["month_year"]
-        if current_timestamp == social_welfare_timestamp:
-            return dropdown_options["social_welfare"]
-        return lang("dropdown_label")
 
-    @app.callback(
+        if len(selectec_field):
+            current_timestamp = max(selectec_field)
+
+        if current_timestamp == age_timestamp:
+            return "age", dropdown_options["age"]
+        if current_timestamp == gender_timestamp:
+            return "gender", dropdown_options["gender"],
+        if current_timestamp == schooling_timestamp:
+            return "schooling", dropdown_options["schooling"],
+        if current_timestamp == ethnicity_timestamp:
+            return "ethnicity", dropdown_options["ethnicity"],
+        if current_timestamp == region_timestamp:
+            return "region", dropdown_options["region"],
+        if current_timestamp == social_welfare_timestamp:
+            return "social_welfare", dropdown_options["social_welfare"]
+
+        return "empty", lang("dropdown_label")
+
+    @ app.callback(
         Output(
             component_id=COMPONENTS_IDS["bar_chart_first_dimension_dropdown"], component_property='label'),
         Input(
-            component_id=STORE_STATE["first_dimension"], component_property='data'),
+            component_id=STORE_STATE["first_dimension_label"], component_property='data'),
+        Input(
+            component_id=STORE_STATE["second_dimension_label"], component_property='data'),
+        # State(
+        #     component_id=COMPONENTS_IDS["bar_chart_first_dimension_dropdown"], component_property='label'),
     )
-    def update_bar_chart_dropdown(first_dimension_value):
-        return first_dimension_value
+    def update_bar_chart_first_dimension_dropdown_label(first_dimension_label, second_dimension_label):
+        sameLabel = first_dimension_label == second_dimension_label
+        selected_second_dimension = second_dimension_label != lang(
+            "dropdown_label")
+        # print('sameLabel', sameLabel)
+        # print('selected_second_dimension', selected_second_dimension)
+# or sameLabel and first_dimension_label == lang("dropdown_label"):
+        if sameLabel and selected_second_dimension:
+            return lang("dropdown_label")
 
-    @app.callback(
+        return first_dimension_label
+
+    @ app.callback(
         Output(
             component_id=COMPONENTS_IDS["bar_chart_second_dimension_dropdown"], component_property='label'),
         Input(
-            component_id=STORE_STATE["second_dimension"], component_property='data'),
+            component_id=STORE_STATE["first_dimension_label"], component_property='data'),
+        Input(
+            component_id=STORE_STATE["second_dimension_label"], component_property='data'),
+        # State(
+        #     component_id=COMPONENTS_IDS["bar_chart_second_dimension_dropdown"], component_property='label'),
     )
-    def update_bar_chart_dropdown(first_dimension_value):
-        return first_dimension_value
+    def update_bar_chart_second_dimension_dropdown_label(first_dimension_label, second_dimension_label):
+        sameLabel = first_dimension_label == second_dimension_label
+        selected_first_dimension = first_dimension_label != lang(
+            "dropdown_label")
+        if sameLabel and selected_first_dimension:
+            return lang("dropdown_label")
+        return second_dimension_label
 
-    #   @app.callback(
-    #     Output(
-    #         component_id=COMPONENTS_IDS["bar_chart"], component_property='figure'),
-    #     Input(component_id=COMPONENTS_IDS['bar_chart_first_dimension_dropdown'],
-    #           component_property='value'),
-    #     Input(component_id=COMPONENTS_IDS['bar_chart_second_dimension_dropdown'],
-    #           component_property='value'),
-    # )
-    # def update_bar_chart(first_dimension_value, second_dimension_value):
-    #     print(first_dimension_value)
-    #     print(second_dimension_value)
-    #     return None
-        # @app.callback(
-        #     Output(
-        #         component_id=STORE_STATE["homeless_data_range"], component_property='data'),
-        #     Output(
-        #         component_id=STORE_STATE["message"], component_property='data'),
-        #     Output(
-        #         component_id=STORE_STATE["error"], component_property='data'),
-        #     Output(
-        #         component_id=STORE_STATE["start_app_done"], component_property='data'),
-        #     Output(
-        #         component_id=COMPONENTS_IDS["app_interval"], component_property='disabled'),
-        #     Input(
-        #         component_id=COMPONENTS_IDS["app_interval"], component_property='n_intervals'),
-        #     Input(
-        #         component_id=COMPONENTS_IDS["end_app_button"], component_property='n_clicks'),
-        #     Input(
-        #         component_id=COMPONENTS_IDS["start_app_button"], component_property='n_clicks'),
-        #     State(
-        #         component_id=COMPONENTS_IDS["end_app_button"], component_property='disabled'),
-        #     State(
-        #         component_id=COMPONENTS_IDS["start_app_button"], component_property='disabled'),
-        #     State(
-        #         component_id=COMPONENTS_IDS["app_interval"], component_property='disabled'),
-        #     State(
-        #         component_id=STORE_STATE["homeless_data_range"], component_property='data'),
-        #     State(
-        #         component_id=STORE_STATE["message"], component_property='data'),
-        #     State(
-        #         component_id=STORE_STATE["error"], component_property='data'),
-        #     State(
-        #         component_id=STORE_STATE["start_app_done"], component_property='data'),
-        # )
-        # def update_store_and_interval(
-        #     n_intervals,
-        #     end_app_button_n_clicks,
-        #     start_app_button_n_clicks,
-        #     end_app_button_disabled,
-        #     start_app_button_disabled,
-        #     current_app_interval_disabled,
-        #     current_homeless_data_range,
-        #     current_message,
-        #     current_error,
-        #     current_start_app_done
-        # ):
-        #     data_range = current_homeless_data_range
-        #     message = current_message
-        #     error = current_error
-        #     start_app_done = current_start_app_done
-        #     app_interval_disabled = current_app_interval_disabled
+    def hide_option(child, value):
+        if child['props']['children'] == value:
+            child['props']['class_name'] = 'default-hide-section'
+        else:
+            child['props']['class_name'] = 'default-show-section'
+        return child
 
-        #     if start_app_button_n_clicks and not start_app_button_disabled:
-        #         app_interval_disabled = False
+    @app.callback(
+        Output(
+            component_id=COMPONENTS_IDS["bar_chart_second_dimension_dropdown"], component_property='children'),
+        Input(
+            component_id=STORE_STATE["first_dimension_label"], component_property='data'),
+        State(
+            component_id=COMPONENTS_IDS["bar_chart_second_dimension_dropdown"], component_property='children'),
+    )
+    def update_bar_chart_second_dimension_dropdown(first_dimension_label, second_dimension_children):
+        return list(map(lambda child: (hide_option(child=child, value=first_dimension_label)), second_dimension_children))
 
-        #     if end_app_button_n_clicks and not end_app_button_disabled:
-        #         while True:
-        #             try:
-        #                 message, error = next(end_app)
-        #                 if message:
-        #                     print(message)
-        #                 if error:
-        #                     print(error)
-        #             except StopIteration:
-        #                 break
-        #         data_range = ''
-        #         message = ''
-        #         error = ''
-        #         start_app_done = False
-        #         app_interval_disabled = True
+    @app.callback(
+        Output(
+            component_id=COMPONENTS_IDS["bar_chart_first_dimension_dropdown"], component_property='children'),
+        Input(
+            component_id=STORE_STATE["second_dimension_label"], component_property='data'),
+        State(
+            component_id=COMPONENTS_IDS["bar_chart_first_dimension_dropdown"], component_property='children'),
+    )
+    def update_bar_chart_first_dimension_dropdown(second_dimension_label,  first_dimension_children):
+        return list(map(lambda child: (hide_option(child=child, value=second_dimension_label)), first_dimension_children))
 
-        #     if n_intervals and not app_interval_disabled:
+    def map_data(data):
+        dimensions = {}
+        mapped_data = []
+        for amout, first_dimension, second_dimension in data:
+            if first_dimension not in dimensions.keys():
+                dimensions[first_dimension] = {}
+            if second_dimension not in dimensions[first_dimension].keys():
+                dimensions[first_dimension][second_dimension] = amout
+            else:
+                dimensions[first_dimension][second_dimension] = [
+                    *dimensions[first_dimension][second_dimension], amout]
+        for first_dimension in dimensions.keys():
+            second_dimensions = dimensions[first_dimension].keys()
+            amouts = dimensions[first_dimension].values()
+            mapped_data.append(
+                {'type': 'bar', 'name': first_dimension, 'x': list(second_dimensions), 'y': list(amouts)})
+        return mapped_data
 
-        #         try:
-        #             homeless_data_range, start_app_message, start_app_error = next(
-        #                 start_app)
+    @ app.callback(
+        Output(
+            component_id=COMPONENTS_IDS["bar_chart"], component_property='figure'),
+        Input(
+            component_id=STORE_STATE["first_dimension"], component_property='data'),
+        Input(
+            component_id=STORE_STATE["second_dimension"], component_property='data'),
+        Input(
+            component_id=COMPONENTS_IDS["date_range"], component_property='start_date'),
+        Input(
+            component_id=COMPONENTS_IDS["date_range"], component_property='end_date'),
+        # State(
+        #     component_id=COMPONENTS_IDS["bar_chart_first_dimension_dropdown"], component_property='children'),
+    )
+    def update_bar_chart(first_dimension, second_dimension, start_date, end_date):
+        data = []
 
-        #             if start_app_message:
-        #                 message = start_app_message
-        #             if start_app_error:
-        #                 error = start_app_error
-        #             if homeless_data_range:
-        #                 data_range = str(homeless_data_range)
-        #         except StopIteration:
-        #             start_app_done = True
-        #             app_interval_disabled = True
-        #         except ValueError:
-        #             start_app_done = False
-        #             app_interval_disabled = True
-        #     print(message, current_message, n_intervals)
-        #     return data_range, message, error, start_app_done, app_interval_disabled
+        filledFilters = first_dimension != 'empty' and second_dimension != 'empty' and start_date and end_date
 
-        # @app.callback(
-        #     Output(
-        #         component_id=COMPONENTS_IDS["start_app_button_text"], component_property='children'),
-        #     Output(
-        #         component_id=COMPONENTS_IDS["start_app_button"], component_property='color'),
-        #     Input(
-        #         component_id=STORE_STATE["message"], component_property='data'),
-        #     Input(
-        #         component_id=STORE_STATE["error"], component_property='data'),
-        # )
-        # def update_start_app_button(message, error):
-        #     print('button', message)
-        #     if message:
-        #         return message, 'primary'
-        #     if error:
-        #         return error, 'danger'
-        #     return lang('start_app'), 'primary'
+        if filledFilters:
+            min_year, min_month = map_date(start_date)
+            max_year, max_month = map_date(end_date)
+            data_raw = select_app_iterator(column_1=first_dimension, column_2=second_dimension,
+                                           max_month=max_month, max_year=max_year, min_year=min_year, min_month=min_month)
+            print('data_raw', data_raw)
+            data = map_data(data_raw)
 
-        # @app.callback(
-        #     Output(
-        #         component_id=COMPONENTS_IDS["start_app_button"], component_property='disabled'),
-        #     Input(
-        #         component_id=STORE_STATE["start_app_done"], component_property='data'),
-        # )
-        # def update_start_app_button_disabled(start_app_done):
-        #     return start_app_done
-
-        # @app.callback(
-
-        #     Input(
-        #         component_id=COMPONENTS_IDS["start_app_button"], component_property='disabled'),
-        # )
-        # def update_buttons_disabled(start_app_button_disabled):
-        #     return not start_app_button_disabled, not start_app_button_disabled
-
-        # @app.callback(
-        #     Output(
-        #         component_id=COMPONENTS_IDS["start_app_button"], component_property='disabled'),
-        #     Input(
-        #         component_id=COMPONENTS_IDS["start_app_button"], component_property='n_clicks'),
-        #     State(
-        #         component_id=COMPONENTS_IDS["start_app_button"], component_property='disabled'),
-
-        # )
-        # def update_start_button_by_click(start_app_button_n_clicks, start_app_button_disabled):
-        #     if start_app_button_disabled:
-        #         return True
-        #     if start_app_button_n_clicks is None:
-        #         return False
-
-        # @app.callback(
-        #     Output(
-        #         component_id=COMPONENTS_IDS["start_app_button"], component_property='children'),
-        #     Output(
-        #         component_id=COMPONENTS_IDS["start_app_button"], component_property='disabled'),
-        #     Input(
-        #         component_id=COMPONENTS_IDS["app_interval"], component_property='n_intervals'),
-        # )
-        # def update_start_button_by_interval(n_intervals):
-        #     if n_intervals:
-        #         try:
-        #             homeless_data_range, connection, message, error = next(
-        #                 start_app)
-        # #                 bar_chart_button_disabled = True
-        # #                 pie_chart_button_disabled = True
-        # #                 if message is not None:
-        # #                     button_text = message
-        # #                     interval_disabled = False
-        # #                     spinner_style = {'display': 'block'}
-        # #                 if error is not None:
-        # #                     button_text = error
-        # #                     button_color = 'danger'
-        #         except StopIteration:
-        #             #                 button_text = lang('show_database')
-        #         finally:
-        #             #                 return button_text, spinner_style, interval_disabled, button_color, bar_chart_button_disabled, pie_chart_button_disabled
-        #         return
-        #     return
+        return {"data": data}
 
     return app
-
-    #     @app.callback(
-    #         Output(component_id='main-button-text', component_property='children'),
-    #         Output(component_id='primary-button-spinner',
-    #                component_property='style'),
-    #         Output(component_id='interval-component',
-    #                component_property='disabled'),
-    #         Output(component_id='main-button', component_property='color'),
-    #         Output(component_id='bar-chart-button', component_property='disabled'),
-    #         Output(component_id='pie-chart-button', component_property='disabled'),
-    #         Input(component_id='interval-component',
-    #               component_property='n_intervals'),
-    #         Input(component_id='main-button', component_property='n_clicks'),
-    #         State(component_id='main-button-text', component_property='children')
-    #     )
-    #     def update_main_button(n_intervals, n_clicks, current_children):
-    #         button_text = lang('show_database')
-    #         spinner_style = {'display': 'none'}
-    #         interval_disabled = True
-    #         button_color = 'success'
-    #         bar_chart_button_disabled = False
-    #         pie_chart_button_disabled = False
-
-    #         button_not_clicked = n_clicks is None
-
-    #         if button_not_clicked:
-    #             button_text = lang('start')
-    #             bar_chart_button_disabled = True
-    #             pie_chart_button_disabled = True
-    #             return button_text, spinner_style, interval_disabled, button_color, bar_chart_button_disabled, pie_chart_button_disabled
-
-    #         finished = current_children == lang('show_database')
-
-    #         if finished:
-    #             return current_children, spinner_style, interval_disabled, button_color, bar_chart_button_disabled, pie_chart_button_disabled
-
-    #         button_first_click = n_clicks is not None and n_intervals == 0
-
-    #         if button_first_click:
-    #             button_text = lang('loading')
-    #             spinner_style = {'display': 'block'}
-    #             interval_disabled = False
-    #             bar_chart_button_disabled = True
-    #             pie_chart_button_disabled = True
-    #             return button_text, spinner_style, interval_disabled, button_color, bar_chart_button_disabled, pie_chart_button_disabled
-
-    #         on_intervals = n_intervals != 0
-
-    #         if on_intervals:
-    #             try:
-    #                 message, error = next(start_app)
-    #                 bar_chart_button_disabled = True
-    #                 pie_chart_button_disabled = True
-    #                 if message is not None:
-    #                     button_text = message
-    #                     interval_disabled = False
-    #                     spinner_style = {'display': 'block'}
-    #                 if error is not None:
-    #                     button_text = error
-    #                     button_color = 'danger'
-    #             except StopIteration:
-    #                 button_text = lang('show_database')
-    #             finally:
-    #                 return button_text, spinner_style, interval_disabled, button_color, bar_chart_button_disabled, pie_chart_button_disabled
-
-    #         return button_text, spinner_style, interval_disabled, button_color, bar_chart_button_disabled, pie_chart_button_disabled
-    #     return app

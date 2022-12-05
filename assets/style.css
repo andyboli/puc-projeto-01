@@ -132,6 +132,10 @@ div {
   display: none;
 }
 
+.default-show-section {
+  display: flex;
+}
+
 .default-white-section {
   background-color: var(--white);
 }

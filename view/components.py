@@ -4,6 +4,17 @@ import dash_bootstrap_components as dbc
 from controller.reader import lang
 
 
+def DATE_RANGE_PICKER(id: str):
+    return dcc.DatePickerRange(
+        start_date_placeholder_text="Start Period",
+        end_date_placeholder_text="End Period",
+        calendar_orientation='vertical',
+        id=id,
+        min_date_allowed='2019-01-01',
+        display_format="DD MM YYYY"
+    )
+
+
 def SPINNER(id: str):
     return html.Div(dbc.Spinner(size="sm"), id=id, className="default-hide-section")
 
@@ -81,15 +92,16 @@ def DROPDOWN_ITEM(option: tuple, id):
 
 
 def DROPDOWN(options: dict = {}, id: str = ''):
-    return dbc.DropdownMenu([*map(lambda option: DROPDOWN_ITEM(option=option, id=id), options.items())], id=id, label=lang("dropdown_label"), class_name='default-border',)
+    return dbc.DropdownMenu([*map(lambda option: DROPDOWN_ITEM(option=option, id=id), options.items())], id=id, label=lang("dropdown_label"), class_name='default-border')
 
 
 def BAR_GRAPH(id: str = ''):
     return dcc.Graph(
         figure={
             'data': [
-                {'x': [3, 4, 5], 'y': [4, 1, 2], 'type': 'bar', 'name': 'SF'},
-                {'x': [1, 2, 3], 'y': [2, 4, 5],
+                {'x': ['pampulha', 'contagem', 'centro'], 'y': [
+                    20, 1, 2], 'type': 'bar', 'name': 'SF'},
+                {'x': ['pampulha', 'contagem', 'centro'], 'y': [2, 4, 5],
                  'type': 'bar', 'name': u'Montréal'},
             ],
             'layout': {
@@ -98,3 +110,7 @@ def BAR_GRAPH(id: str = ''):
         },
         id=id,
     )
+
+
+class_name = 'default-hide-section'
+''

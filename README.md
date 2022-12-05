@@ -292,3 +292,22 @@ Do not require declare the data types variables before assigned values;
 Perform type checking at compile time;
 Fail to compile until the errors have been fixed;
 Require declare the data types of variables before assigned values;
+
+### MySQL
+
+SELECT: indica quais colunas que serão apresentadas como resultado da consulta.
+
+FROM: identifica as tabelas de onde serão trazidos os dados da consulta.
+
+WHERE: apresenta as restrições ou filtros que serão aplicadas aos dados.
+
+ORDER BY: classifica as linhas retornadas pela consulta.
+
+FUNÇÕES AGREGADAS
+Função Descrição
+AVG(coluna) calcula a média de todos os valores para aquela coluna
+COUNT(coluna) conta o número de valores não nulos para coluna
+COUNT(\*) conta o número de linhas na tabela
+MAX(coluna) retorna o valor máximo para coluna
+MIN(coluna) retorna o valor mínimo para coluna
+SUM(coluna) calcula a soma dos valores para coluna

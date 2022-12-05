@@ -3,7 +3,7 @@ from plotly.subplots import make_subplots
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 
-from view.components import TEXT, ROW_SECTION, BUTTON, DROPDOWN, MAIN_SECTION, MAIN_TITLE, CARD, BOLD_TEXT, LINK, COLUMN_SECTION, SPINNER, INTERVAL, STORE, BAR_GRAPH
+from view.components import TEXT, ROW_SECTION, BUTTON, DROPDOWN, MAIN_SECTION, MAIN_TITLE, CARD, BOLD_TEXT, LINK, COLUMN_SECTION, SPINNER, INTERVAL, STORE, BAR_GRAPH, DATE_RANGE_PICKER
 from view.constants import COMPONENTS_IDS, STORE_STATE
 from controller.orchestrator import start_app_iterations
 from database.constants import TABLES
@@ -11,10 +11,12 @@ from database.constants import TABLES
 APP_STORE = [
     STORE(STORE_STATE['done']),
     STORE(STORE_STATE['error']),
-    STORE(STORE_STATE['loading']),
-    STORE(STORE_STATE['success']),
+    STORE(STORE_STATE['first_dimension_label']),
     STORE(STORE_STATE['first_dimension']),
+    STORE(STORE_STATE['loading']),
+    STORE(STORE_STATE['second_dimension_label']),
     STORE(STORE_STATE['second_dimension']),
+    STORE(STORE_STATE['success']),
 ]
 
 DATABASE_CARD = CARD([
@@ -93,7 +95,10 @@ PIE_CHART_DROPDOWNS = ROW_SECTION([
     DROPDOWN(id=COMPONENTS_IDS["pie_chart_second_dimension_dropdown"]),
 ], id=COMPONENTS_IDS['pie_chart_dropdowns'])
 
-CHARTS_DROPDOWNS = [BAR_CHART_DROPDOWNS, PIE_CHART_DROPDOWNS]
+PERIOD_RANGE = DATE_RANGE_PICKER(id=COMPONENTS_IDS["date_range"])
+
+
+CHARTS_DROPDOWNS = [BAR_CHART_DROPDOWNS, PIE_CHART_DROPDOWNS, PERIOD_RANGE]
 
 
 APP_BUTTONS = ROW_SECTION(

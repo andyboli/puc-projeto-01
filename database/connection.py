@@ -141,3 +141,27 @@ def insert_table(connection: MySQLConnection, table: str, data: list):
     finally:
         cursor.close()
         return success, error
+
+
+def select_table(connection: MySQLConnection, column_1: str, column_2: str, max_year: str, min_year: str, min_month: str, max_month: str):
+    try:
+        success = ''
+        error = ''
+        data = []
+        cursor = connection.cursor()
+        SELECT_TABLE_QUERY = TABLES['homeless']["select_query"].format(
+            column_1=column_1, column_2=column_2, db=DB_NAME)
+        if (max_year and min_year and max_month and min_month):
+            SELECT_TABLE_QUERY = TABLES['homeless']["select_query_period"].format(
+                column_1=column_1, column_2=column_2, max_year=max_year, min_year=min_year, max_month=max_month, min_month=min_month, db=DB_NAME)
+        print(SELECT_TABLE_QUERY)
+        cursor.execute(SELECT_TABLE_QUERY)
+        data = list(cursor.fetchall())
+    except mysql.connector.Error as err:
+        error = lang('database_insert_table_error').format('homeless', err)
+    else:
+        success = lang('database_insert_table_done').format(
+            'homeless', cursor.rowcount)
+    finally:
+        cursor.close()
+        return data, success, error

@@ -45,8 +45,15 @@ TABLES['homeless']["insert_query"] = (
     (month_year, age, gender, birthday, schooling, ethnicity, region, period, social_welfare)
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)''')
 
-TABLES['homeless']["select_query"] = ("SELECT * FROM homeless")
 
+TABLES['homeless']["select_query"] = (
+    "SELECT COUNT(*) AS amount, {column_1}, {column_2} FROM {db}.homeless GROUP BY {column_1}, {column_2}")
+
+TABLES['homeless']["select_query_period"] = (
+    "SELECT COUNT(*) AS amount, {column_1}, {column_2} FROM {db}.homeless WHERE CAST(SUBSTRING(month_year, -4, 4) AS SIGNED) >= {min_year} and CAST(SUBSTRING(month_year, -4, 4) AS SIGNED) <= {max_year} and CAST(SUBSTRING(month_year, -7, 2) AS SIGNED) >= {min_month} and CAST(SUBSTRING(month_year, -7, 2) AS SIGNED) <= {max_month} GROUP BY {column_1}, {column_2}")
+
+TABLES['homeless']["select_query_all"] = (
+    "SELECT * FROM `{0}`.`homeless` LIMIT 50")
 
 HOMELESS_GENDERS = ['Masculino', 'Feminino']
 
@@ -80,7 +87,7 @@ TABLES['homeless']['headers'] = ["month_year", "age", "gender",
 
 
 TABLES['homeless']['headers_label'] = {"age": 'Idade', "gender": "Gênero",
-                                       "schooling": 'Escolaridade', "ethnicity": "Etnia", "region": "Região", "period": "Período nas ruas", "month_year": "Período de referência", "social_welfare": "Benefícios sociais "}
+                                       "schooling": 'Escolaridade', "ethnicity": "Etnia", "region": "Região", "social_welfare": "Benefícios sociais "}
 
 TABLES['homeless']['headers_ranges'] = {
     "age": HOMELESS_AGES_RANGE,
@@ -92,3 +99,49 @@ TABLES['homeless']['headers_ranges'] = {
     "schooling": HOMELESS_SCHOOLINGS,
     "social_welfare": HOMELESS_SOCIAL_WELFARES,
 }
+
+
+'''
+SELECT t1.name, t2.salary FROM employee AS t1, info AS t2
+  WHERE t1.name = t2.name;
+
+
+SELECT a, b, COUNT(c) AS t FROM test_table GROUP BY a,b ORDER BY a,t DESC;
+
+
+SELECT * FROM tbl LIMIT 5;
+
+
+SELECT college, region, seed FROM tournament
+  ORDER BY region, seed;
+
+
+SELECT COUNT(col1) AS col2 FROM t GROUP BY col2 HAVING col2 = 2;
+
+
+LIKE
+Utiliza os wildcards  _  e  %  para procurar por padrões de texto em uma string ou sequência de caracteres.
+Cada _ corresponde a um caracter.
+% corresponde a nenhum ou vários caracteres em uma sequência.
+Ex.: cidade LIKE ‘_elo Hori%’ retornaria a cidade Belo Horizonte.
+
+
+SELECT
+
+
+FROM nome_da_tabela1 JOIN ON nome_da_tabela2 JOIN ON ...
+WHERE condições
+GROUP BY nome_da_coluna
+HAVING condições
+ORDER BY nome_da_coluna1, ...
+FROM nome_da_tabela1, nome_da_tabela2, nome_da_tabela3, ...
+WHERE nome_da_tabela1.coluna_n = nome_da_tabela2.coluna_n AND nome_da_tabela3.coluna_n = nome_da_tabela1.coluna_n
+GROUP BY nome_da_coluna
+HAVING condições
+ORDER BY nome_da_coluna1, ...
+
+FROM nome_da_tabela1
+UNION [ALL]
+SELECT nome_da_coluna3, nome_da_coluna4
+FROM nome_da_tabela2
+'''

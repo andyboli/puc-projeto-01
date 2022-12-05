@@ -27,7 +27,8 @@ COMPONENTS_IDS = {
     'info_cards': 'info-cards',
     'charts_buttons': 'chart-buttons',
     'charts_buttons_section': 'charts-buttons-section',
-    'bar_chart': 'bar-chart'
+    'bar_chart': 'bar-chart',
+    'date_range': 'date-range'
 }
 
 STORE_STATE = {
@@ -36,5 +37,7 @@ STORE_STATE = {
     "loading": "loading",
     "success": "success",
     "first_dimension": "first_dimension",
-    "second_dimension": "second_dimension"
+    "second_dimension": "second_dimension",
+    "first_dimension_label": "first_dimension_label",
+    "second_dimension_label": "second_dimension_label"
 }
