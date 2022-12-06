@@ -34,12 +34,12 @@ body {
 }
 
 :root {
-  --font-size-h1: 20px;
-  --font-size-h2: 18px;
-  --font-size-h3: 15px;
-  --font-size-large: 14px;
-  --font-size-medium: 12px;
-  --font-size-small: 10px;
+  --font-size-h1: 24px;
+  --font-size-h2: 12px;
+  --font-size-h3: 19px;
+  --font-size-large: 18px;
+  --font-size-medium: 16px;
+  --font-size-small: 14px;
 }
 
 :root {
@@ -81,6 +81,11 @@ body {
 
 div {
   box-sizing: border-box;
+}
+
+#start-app-button {
+  width: 800px;
+  justify-content: flex-start;
 }
 
 .default-section {
@@ -230,21 +235,7 @@ div {
   cursor: not-allowed;
 }
 
-#start-app-button {
-  width: 800px;
-  justify-content: flex-start;
-}
-
-#info-cards,
-#status-section {
-  display: flex;
-}
-
-/* #app-buttons {
-  width: 100%;
-} */
-
-/* .plotly {
+.plotly {
   height: 100%;
   width: 100%;
 }
@@ -252,4 +243,4 @@ div {
 .main-svg {
   height: 100%;
   width: 100%;
-} */
+}

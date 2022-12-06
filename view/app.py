@@ -8,7 +8,7 @@ from view.layout import app_layout
 assets_path = os.getcwd() + '/assets'
 
 app = Dash(__name__, assets_folder=assets_path,
-           external_stylesheets=[dbc.themes.BOOTSTRAP])
+           external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP])
 
 
 def run_view():

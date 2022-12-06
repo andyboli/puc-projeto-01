@@ -2,6 +2,22 @@
   "close_connection_error": "Falha ao fechar a conexão com o MySQL:\n{}",
   "close_connection_start": "Iniciando o fechamento da conexão com o MySQL...",
   "close_connection_success": "Sucesso ao fechar a conexão com o MySQL {}",
+  "component_authors_label": "Autores: ",
+  "component_authors_name": "Anderson Bolivar Nascimento e Gustavo Benevenuto de Oliveira",
+  "component_bar_chart_text": "Gráfico de barras",
+  "component_database_label": "Base de dados: ",
+  "component_database_link": "https://dados.pbh.gov.br/dataset/populacao-de-rua",
+  "component_database_name": "População de Rua de Belo Horizonte",
+  "component_dropdown_label": "Selecione a dimensão",
+  "component_end_date_placeholder": "Data Final",
+  "component_hide_charts_text": "Ocultar gráficos",
+  "component_main_title_text": "Desenvolvimento de aplicação para tratamento de dados",
+  "component_pie_chart_text": "Gráfico de pizza",
+  "component_restart_app_label": "Reiniciar aplicação",
+  "component_show_charts_label": "Mostrar gráficos",
+  "component_show_database_text": "Mostrar base de dados",
+  "component_start_app_label": "Iniciar aplicação",
+  "component_start_date_placeholder": "Data Inicial",
   "create_database_error": "Falha ao criar a base de dados {}:\n{}",
   "create_database_start": "Iniciando a criação da base de dados {}...",
   "create_database_success": "Sucesso ao criar a base de dados {}",
@@ -11,7 +27,6 @@
   "drop_database_error": "Falha ao excluir base de dados {}:\n{}",
   "drop_database_start": "Iniciando a exclusão da base de dados {}...",
   "drop_database_success": "Sucesso ao excluir base de dados {}",
-  "end_app_error": "Falha ao encerrar aplicativo:\n{}",
   "insert_table_error": "Falha ao popular a tabela {}:\n{}",
   "insert_table_start": "Iniciando a inserção de dados na tabela {}...",
   "insert_table_success": "Sucesso ao popular a tabela {}, {} linhas inseridas",
@@ -25,30 +40,8 @@
   "read_data_error": "Falha ao ler os dados do diretório {}:\n{}",
   "read_data_start": "Iniciando a leitura dos dados do diretório {}...",
   "read_data_success": "Sucesso ao ler dados do diretório {}: {} linhas lidas",
+  "restart_app_error": "Falha ao encerrar aplicativo:\n{}",
   "select_table_error": "Falha ao selecionar a tabela {}:\n{}",
   "select_table_start": "Iniciando a seleção de dados da tabela {}",
-  "select_table_success": "Sucesso ao selecionar a tabela {}, {} linhas selecionadas",
-
-  "authors_name": "Anderson Bolivar Nascimento e Gustavo Benevenuto de Oliveira",
-  "authors": "Autores: ",
-  "bar_chart": "Gráfico de barras",
-
-  "database_open_connection_error": "Base de dados inexistente",
-
-  "database_create_tables_error": "Error ao criar tabelas: {}",
-
-  "database_name": "População de Rua de Belo Horizonte",
-  "database": "Base de dados: ",
-  "dropdown_label": "Selecione a dimensão",
-
-  "end_app": "Reiniciar aplicação",
-  "hide_charts": "Ocultar gráficos",
-  "loading_app": "Carregando aplicação...",
-  "main_title": "Desenvolvimento de aplicação para tratamento de dados",
-
-  "pie_chart": "Gráfico de pizza",
-
-  "show_charts": "Mostrar gráficos",
-  "show_database": "Mostrar base de dados",
-  "start_app": "Iniciar aplicação"
+  "select_table_success": "Sucesso ao selecionar a tabela {}, {} linhas selecionadas"
 }

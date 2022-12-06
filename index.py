@@ -1,5 +1,5 @@
 from view.app import run_view
-from controller.orchestrator import end_app
+from controller.orchestrator import restart_app
 
 
 if __name__ == "__main__":
@@ -8,7 +8,7 @@ if __name__ == "__main__":
     # finally:
     #     while True:
     #         try:
-    #             message, error = next(end_app)
+    #             message, error = next(restart_app)
     #             if message:
     #                 print(message)
     #             if error:

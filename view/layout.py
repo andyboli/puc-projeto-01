@@ -1,121 +1,114 @@
-from dash import dcc, html
-from plotly.subplots import make_subplots
-import dash_bootstrap_components as dbc
-import plotly.graph_objects as go
+from database.constants import PUC_DB_HOMELESS_COLUMNS_LABELS
+from view.constants import (COMPONENTS_IDS, STORE_IDS)
+from view.components import (BAR_CHART, BOLD_TEXT,
+                             BUTTON, CARD,
+                             COLUMN_SECTION, DATE_PICKER_RANGE,
+                             DROPDOWN, INTERVAL, LINK,
+                             MAIN_SECTION, MAIN_TITLE,
+                             PIE_CHART, ROW_SECTION, SPINNER,
+                             STORE, TABLE, TEXT)
 
-from view.components import TEXT, ROW_SECTION, BUTTON, DROPDOWN, MAIN_SECTION, MAIN_TITLE, CARD, BOLD_TEXT, LINK, COLUMN_SECTION, SPINNER, INTERVAL, STORE, BAR_GRAPH, DATE_RANGE_PICKER
-from view.constants import COMPONENTS_IDS, STORE_STATE
-from controller.orchestrator import start_app_iterations
-from database.constants import TABLES
-
-APP_STORE = [
-    STORE(STORE_STATE['done']),
-    STORE(STORE_STATE['error']),
-    STORE(STORE_STATE['first_dimension_label']),
-    STORE(STORE_STATE['first_dimension']),
-    STORE(STORE_STATE['loading']),
-    STORE(STORE_STATE['second_dimension_label']),
-    STORE(STORE_STATE['second_dimension']),
-    STORE(STORE_STATE['success']),
-]
-
-DATABASE_CARD = CARD([
-    BOLD_TEXT('database'),
-    LINK('database_name', 'https://dados.pbh.gov.br/dataset/populacao-de-rua')
-])
-
-AUTHORS_CARD = CARD([BOLD_TEXT('authors'), TEXT('authors_name')])
-
-INFO_CARDS = ROW_SECTION([DATABASE_CARD, AUTHORS_CARD],
-                         id=COMPONENTS_IDS["info_cards"])
-
-PAGE_HEADER = [
-    MAIN_TITLE(),
-    INFO_CARDS
-]
-
-START_APP_BUTTON = BUTTON(
-    children=[SPINNER(id=COMPONENTS_IDS['start_app_button_spinner']),
-              TEXT('start_app', id=COMPONENTS_IDS['start_app_button_text'])],
-    id=COMPONENTS_IDS["start_app_button"]
-)
-
-STATUS_SECTION = ROW_SECTION(id=COMPONENTS_IDS['status_section'])
-
-END_APP_BUTTON = BUTTON(
-    children=TEXT('end_app', id=COMPONENTS_IDS["end_app_button_text"]),
-    color="warning",
-    id=COMPONENTS_IDS["end_app_button"]
-)
-
-DATABASE_BUTTON = BUTTON(
-    children=TEXT('show_database'),
-    color="success",
-    id=COMPONENTS_IDS["database_button"]
-)
-
-CHARTS_BUTTON = BUTTON(
-    children=TEXT('show_charts'),
-    color="success",
-    id=COMPONENTS_IDS["charts_button"]
-)
 
 BAR_CHART_BUTTON = BUTTON(
-    children=TEXT('bar_chart'),
+    children=TEXT('component_bar_chart_text'),
+    color="success",
     id=COMPONENTS_IDS["bar_chart_button"]
 )
 
-
 PIE_CHART_BUTTON = BUTTON(
-    children=TEXT('pie_chart'),
+    children=TEXT('component_pie_chart_text'),
+    color="success",
     id=COMPONENTS_IDS["pie_chart_button"]
 )
 
 HIDE_CHARTS_BUTTON = BUTTON(
-    children=TEXT('hide_charts'),
+    children=TEXT('component_hide_charts_text'),
     color="warning",
     id=COMPONENTS_IDS["hide_charts_button"]
 )
 
+CHARTS_BUTTONS = ROW_SECTION(
+    [BAR_CHART_BUTTON, PIE_CHART_BUTTON, HIDE_CHARTS_BUTTON])
 
-CHARTS_BUTTONS_SECTION = COLUMN_SECTION(
-    [HIDE_CHARTS_BUTTON, ROW_SECTION([BAR_CHART_BUTTON, PIE_CHART_BUTTON], id=COMPONENTS_IDS['charts_buttons'])], id=COMPONENTS_IDS['charts_buttons_section'])
-
-
-BAR_CHART_DROPDOWNS = ROW_SECTION([
-    DROPDOWN(id=COMPONENTS_IDS["bar_chart_first_dimension_dropdown"],
-             options=TABLES['homeless']['headers_label']),
-    DROPDOWN(id=COMPONENTS_IDS["bar_chart_second_dimension_dropdown"],
-             options=TABLES['homeless']['headers_label']),
-], id=COMPONENTS_IDS['bar_chart_dropdowns'])
+CHARTS_DROPDOWNS = ROW_SECTION([
+    DROPDOWN(id=COMPONENTS_IDS["first_dimension_dropdown"],
+             options=PUC_DB_HOMELESS_COLUMNS_LABELS),
+    DROPDOWN(id=COMPONENTS_IDS["second_dimension_dropdown"],
+             options=PUC_DB_HOMELESS_COLUMNS_LABELS),
+], id=COMPONENTS_IDS['charts_dropdowns'])
 
 
-PIE_CHART_DROPDOWNS = ROW_SECTION([
-    DROPDOWN(id=COMPONENTS_IDS["pie_chart_first_dimension_dropdown"]),
-    DROPDOWN(id=COMPONENTS_IDS["pie_chart_second_dimension_dropdown"]),
-], id=COMPONENTS_IDS['pie_chart_dropdowns'])
+PERIOD_RANGE = DATE_PICKER_RANGE(id=COMPONENTS_IDS["date_picker_range"])
 
-PERIOD_RANGE = DATE_RANGE_PICKER(id=COMPONENTS_IDS["date_range"])
+CHARTS_CONTROL_SECTION = COLUMN_SECTION(
+    [CHARTS_BUTTONS, ROW_SECTION([CHARTS_DROPDOWNS, PERIOD_RANGE])])
 
+CHARTS = COLUMN_SECTION(
+    [BAR_CHART(id=COMPONENTS_IDS['bar_chart']), PIE_CHART()])
 
-CHARTS_DROPDOWNS = [BAR_CHART_DROPDOWNS, PIE_CHART_DROPDOWNS, PERIOD_RANGE]
+CHARTS_SECTION = COLUMN_SECTION([CHARTS_CONTROL_SECTION, CHARTS])
 
+TABLE_SECTION = COLUMN_SECTION(TABLE(), id=COMPONENTS_IDS['table_section'])
 
-APP_BUTTONS = ROW_SECTION(
-    children=[DATABASE_BUTTON, CHARTS_BUTTON, END_APP_BUTTON], id=COMPONENTS_IDS["app_buttons"], hide=True)
+CHARTS_BUTTON = BUTTON(
+    children=TEXT('component_show_charts_label'),
+    color="success",
+    id=COMPONENTS_IDS["show_charts_button"]
+)
 
+DATABASE_BUTTON = BUTTON(
+    children=TEXT('component_show_database_text'),
+    color="success",
+    id=COMPONENTS_IDS["show_database_button"]
+)
+
+END_APP_BUTTON = BUTTON(
+    children=TEXT('component_restart_app_label',
+                  id=COMPONENTS_IDS["restart_app_button_text"]),
+    color="warning",
+    id=COMPONENTS_IDS["restart_app_button"]
+)
+
+CONTROL_BUTTONS = ROW_SECTION(
+    children=[DATABASE_BUTTON, CHARTS_BUTTON, END_APP_BUTTON], id=COMPONENTS_IDS["control_buttons"])
+
+ALERTS_SECTION = COLUMN_SECTION(id=COMPONENTS_IDS["alerts_section"])
+
+START_APP_BUTTON = BUTTON(
+    children=[SPINNER(id=COMPONENTS_IDS['start_app_button_spinner']),
+              TEXT('component_start_app_label', id=COMPONENTS_IDS['start_app_button_text'])],
+    id=COMPONENTS_IDS["start_app_button"]
+)
 
 CONTROL_SECTION = COLUMN_SECTION(
-    [START_APP_BUTTON, STATUS_SECTION, APP_BUTTONS], id=COMPONENTS_IDS["control_section"])
+    [START_APP_BUTTON, ALERTS_SECTION, CONTROL_BUTTONS], id=COMPONENTS_IDS["control_section"])
 
+AUTHORS_CARD = CARD(
+    [BOLD_TEXT('component_authors_label'), TEXT('component_authors_name')])
 
-APP_CHARTS = [BAR_GRAPH(id=COMPONENTS_IDS['bar_chart'])]
+DATABASE_CARD = CARD([
+    BOLD_TEXT('component_database_label'),
+    LINK(key='component_database_name', href='component_database_link')
+])
 
+INFO_CARDS = ROW_SECTION([DATABASE_CARD, AUTHORS_CARD],
+                         id=COMPONENTS_IDS["info_cards"])
 
-CHART_SECTION = COLUMN_SECTION(
-    [CHARTS_BUTTONS_SECTION, *CHARTS_DROPDOWNS, *APP_CHARTS], id=COMPONENTS_IDS['charts_section'], hide=True)
+HEADER_SECTION = COLUMN_SECTION([MAIN_TITLE(), INFO_CARDS, ])
+
+APP_STORE = [
+    STORE(STORE_IDS['done']),
+    STORE(STORE_IDS['error']),
+    STORE(STORE_IDS['first_dimension_label']),
+    STORE(STORE_IDS['first_dimension']),
+    STORE(STORE_IDS['loading']),
+    STORE(STORE_IDS['second_dimension_label']),
+    STORE(STORE_IDS['second_dimension']),
+    STORE(STORE_IDS['success']),
+]
+
+BEHAVIOR_SECTION = [*APP_STORE, INTERVAL(id=COMPONENTS_IDS["app_interval"])]
 
 
 app_layout = MAIN_SECTION(
-    [*APP_STORE, *PAGE_HEADER, CONTROL_SECTION, CHART_SECTION, INTERVAL(
-        id=COMPONENTS_IDS["app_interval"], max_intervals=start_app_iterations)])
+    [*BEHAVIOR_SECTION, HEADER_SECTION, CONTROL_SECTION, TABLE_SECTION, CHARTS_SECTION])
