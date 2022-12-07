@@ -1,23 +1,10 @@
 import pandas as pd
 
 
-def faixa_etaria(fe):
-    if fe['IDADE'] < 12:
-        return '0-11'
-    elif fe['IDADE'] >= 12 and fe['IDADE'] < 18:
-        return '12-17'
-    elif fe['IDADE'] >= 18 and fe['IDADE'] < 30:
-        return '18-29'
-    elif fe['IDADE'] >= 30 and fe['IDADE'] < 60:
-        return '30-59'
-    else:
-        return '>60'
-
-
-rua = pd.read_csv(r'C:\Users\gusta\OneDrive\Documentos\Curso - TBD\1º Semestre\Projeto\data_set_poprua_cadunico-07-2022.csv',
-                  encoding='cp860', delimiter=';', usecols=[0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12])
-rua['Faixa_etaria'] = rua.apply(faixa_etaria, axis=1)
-print(rua)
+# rua = pd.read_csv(r'C:\Users\gusta\OneDrive\Documentos\Curso - TBD\1º Semestre\Projeto\data_set_poprua_cadunico-07-2022.csv',
+#                   encoding='cp860', delimiter=';', usecols=[0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12])
+# rua['Faixa_etaria'] = rua.apply(faixa_etaria, axis=1)
+# print(rua)
 
 # def map_homeless_data_range(mapped_data: list):
 #     """receive all mapped csv data from assets/csv/homeless
@@ -87,32 +74,48 @@ print(rua)
 # GRAPH_SECTION = [BAR_GRAPH, PIE_GRAPH]
 
 
-HOMELESS_GENDERS = ['Masculino', 'Feminino']
-
-HOMELESS_REGIONS = [None, 'Oeste', 'Noroeste', 'Norte', 'Venda Nova',
-                    'Nordeste', 'Pampulha', 'Barreiro', 'Leste', 'Centro Sul']
-
-HOMELESS_ETHINICITIES = [None, 'Parda',
-                         'Indigena', 'Branca', 'Amarela', 'Preta']
-
-HOMELESS_SCHOOLINGS = ['Superior incompleto ou mais', None, 'Medio incompleto',
-                       'Sem instrucao', 'Medio completo', 'Fundamental completo', 'Fundamental incompleto']
-
-HOMELESS_PERIODS = ['Mais de dez anos', 'Entre dois e cinco anos', 'Ate seis meses',
-                    'Entre um e dois anos', 'Entre seis meses e um ano', 'Entre cinco e dez anos']
-
-
-HOMELESS_SOCIAL_WELFARES = [False, True]
-
-
-HOMELESS_AGES_RANGE = ['Menor de 1 ano', '1 a 4 anos', '5 a 9 anos', '10 a 14 anos', '15 a 19 anos', '20 a 29 anos', '30 a 39 anos',
-                       '40 a 49 anos', '50 a 59 anos', '60 a 69 anos', '70 a 79 anos', '80 anos e mais']
-
-HOMELESS_YEARS_RANGE = ['2019', '2020', '2021', '2022']
-
-HOMELESS_MONTHS_RANGE = ['01', '02', '03', '04', '05',
-                         '06', '07', '08', '09', '10', '11', '12']
-
-
 # table_query = get_query(first_column, second_column,
 #                             max_year, min_year, min_month, max_month)
+
+
+# def select_data(first_column: str = '', second_column: str = '', first_column_value: str = '', max_year: str = '', min_year: str = '', min_month: str = '', max_month: str = ''):
+#     """Calls select_table with default values.
+
+#     Args:
+#         first_column (str,): First column to group data.
+#         second_column (str,): Second column to group data.
+#         first_column_value (str): First column value to filter data.
+#         max_year (str): Max year to filter data.
+#         min_year (str): Min year to filter data.
+#         min_month (str): Min month to filter data.
+#         max_month (str): Max month to filter data.
+
+#     Yields:
+#         data (list): Data filtered from table
+#         success (str): Success message.
+#         loading (str): Loading message.
+#         error (str): Error message.
+#     """
+#     # yield None, '', lang('select_table_start'), ''
+#     table_query = get_query(first_column=first_column, second_column=second_column, first_column_value=first_column_value, max_year=max_year,
+#                             min_year=min_year, min_month=min_month, max_month=max_month)
+#     data, success, error = select_table(table_query=table_query)
+#     # print("success", success)
+#     # print("error", error)
+#     # print("data", data)
+#     return data
+#     # data, success, error = select_table(table_query=table_query)
+#     # yield data, success, '', error
+
+
+# # select_data = select_data_iterator()
+
+# max_select_data_iterations = 2
+
+
+# def update_dimension_dropdown_label(selected_dimension_label, other_dimension_label):
+#     sameLabel = selected_dimension_label == other_dimension_label
+#     is_selected = selected_dimension_label != lang("component_dropdown_label")
+#     if sameLabel and is_selected:
+#         return lang("component_dropdown_label")
+#     return other_dimension_label

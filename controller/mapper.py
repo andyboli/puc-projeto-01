@@ -1,4 +1,5 @@
 from controller.reader import lang
+from database.constants import (HOMELESS_AGES_RANGE)
 
 
 def map_age(age):
@@ -198,7 +199,7 @@ def map_social_welfare(social_welfare):
     Returns:
         mapped_social_welfare (bool): Social welfare mapped value to insert in homeless table.
     """
-    if social_welfare is 'SIM':
+    if social_welfare == 'SIM':
         return True
     return False
 
@@ -286,3 +287,38 @@ def map_homeless_data(data: list):
         error = lang('map_data_error').format('assets/csv/homeless', err)
     finally:
         return mapped_data, success, error
+
+
+def map_bar_chart_data(data):
+    dimensions = {}
+    mapped_data = []
+    for amout, first_dimension, second_dimension in data:
+        if first_dimension not in dimensions.keys():
+            dimensions[first_dimension] = {}
+        if second_dimension not in dimensions[first_dimension].keys():
+            dimensions[first_dimension][second_dimension] = amout
+        else:
+            dimensions[first_dimension][second_dimension] = [
+                *dimensions[first_dimension][second_dimension], amout]
+    for first_dimension in dimensions.keys():
+        second_dimensions = dimensions[first_dimension].keys()
+        amouts = dimensions[first_dimension].values()
+        mapped_data.append(
+            {'type': 'bar', 'name': first_dimension, 'x': list(second_dimensions), 'y': list(amouts)})
+    return mapped_data
+
+
+# def map_age_range(age):
+#     if age < 12:
+#         return '0-11'
+#     elif age >= 12 and age < 18:
+#         return '12-17'
+#     elif age >= 18 and age < 30:
+#         return '18-29'
+#     elif age >= 30 and age < 60:
+#         return '30-59'
+#     else:
+#         return '>60'
+
+
+# def map_column_range():

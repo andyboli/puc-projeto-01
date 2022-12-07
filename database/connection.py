@@ -200,7 +200,8 @@ def get_query(first_column: str = '', second_column: str = '', first_column_valu
             first_column=first_column, second_column=second_column, first_column_value=first_column_value, max_year=max_year, min_year=min_year, min_month=min_month, max_month=max_month)
     if hasColumns and not hasPeriod:
         table_query = PUC_DB_HOMELESS_SELECT_QUERY_COLUMNS.format(
-            first_column=first_column, second_column=second_column)
+            first_column=first_column, second_column=second_column, first_column_value=first_column_value)
+    print('table_query', table_query)
     return table_query
 
 
@@ -222,6 +223,7 @@ def select_table(table_name: str = PUC_DB_HOMELESS, table_query: str = PUC_DB_HO
     error = ''
     try:
         cursor = connection.cursor()
+        print("fail hera?")
         cursor.execute(table_query)
         data = list(cursor.fetchall())
         cursor.close()

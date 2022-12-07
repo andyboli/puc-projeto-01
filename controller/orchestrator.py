@@ -4,7 +4,7 @@ from database.connection import close_connection, connect_mysql, create_database
 from database.constants import PUC_DB, PUC_DB_HOMELESS
 
 
-start_app_iterations = 12
+max_start_app_iterations = 12
 
 
 def start_app_iterator():
@@ -66,26 +66,9 @@ def restart_app_iterator():
 restart_app = restart_app_iterator()
 
 
-def select_data_iterator(first_column: str, second_column: str, first_column_value: str, max_year: str, min_year: str, min_month: str, max_month: str):
-    """Calls select_table with default values.
-
-    Args:
-        first_column (str,): First column to group data.
-        second_column (str,): Second column to group data.
-        first_column_value (str): First column value to filter data.
-        max_year (str): Max year to filter data.
-        min_year (str): Min year to filter data.
-        min_month (str): Min month to filter data.
-        max_month (str): Max month to filter data.
-
-    Yields:
-        data (list): Data filtered from table
-        success (str): Success message.
-        loading (str): Loading message.
-        error (str): Error message.
-    """
-    yield None, '', lang('select_table_start'), ''
+def select_data(first_column: str = '', second_column: str = '', first_column_value: str = '', max_year: str = '', min_year: str = '', min_month: str = '', max_month: str = ''):
     table_query = get_query(first_column=first_column, second_column=second_column, first_column_value=first_column_value, max_year=max_year,
                             min_year=min_year, min_month=min_month, max_month=max_month)
     data, success, error = select_table(table_query=table_query)
-    yield data, success, '', error
+    print(success, error)
+    return data

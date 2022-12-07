@@ -6,8 +6,8 @@ from view.components import (BAR_CHART, BOLD_TEXT,
                              DROPDOWN, INTERVAL, LINK,
                              MAIN_SECTION, MAIN_TITLE,
                              PIE_CHART, ROW_SECTION, SPINNER,
-                             STORE, TABLE, TEXT)
-
+                             STORE, TEXT)
+from controller.orchestrator import max_start_app_iterations
 
 BAR_CHART_BUTTON = BUTTON(
     children=TEXT('component_bar_chart_text'),
@@ -21,21 +21,16 @@ PIE_CHART_BUTTON = BUTTON(
     id=COMPONENTS_IDS["pie_chart_button"]
 )
 
-HIDE_CHARTS_BUTTON = BUTTON(
-    children=TEXT('component_hide_charts_text'),
-    color="warning",
-    id=COMPONENTS_IDS["hide_charts_button"]
-)
 
 CHARTS_BUTTONS = ROW_SECTION(
-    [BAR_CHART_BUTTON, PIE_CHART_BUTTON, HIDE_CHARTS_BUTTON])
+    [BAR_CHART_BUTTON, PIE_CHART_BUTTON])
 
 CHARTS_DROPDOWNS = ROW_SECTION([
     DROPDOWN(id=COMPONENTS_IDS["first_dimension_dropdown"],
              options=PUC_DB_HOMELESS_COLUMNS_LABELS),
     DROPDOWN(id=COMPONENTS_IDS["second_dimension_dropdown"],
              options=PUC_DB_HOMELESS_COLUMNS_LABELS),
-], id=COMPONENTS_IDS['charts_dropdowns'])
+], id=COMPONENTS_IDS['charts_dropdowns'], hide=True)
 
 
 PERIOD_RANGE = DATE_PICKER_RANGE(id=COMPONENTS_IDS["date_picker_range"])
@@ -43,12 +38,12 @@ PERIOD_RANGE = DATE_PICKER_RANGE(id=COMPONENTS_IDS["date_picker_range"])
 CHARTS_CONTROL_SECTION = COLUMN_SECTION(
     [CHARTS_BUTTONS, ROW_SECTION([CHARTS_DROPDOWNS, PERIOD_RANGE])])
 
-CHARTS = COLUMN_SECTION(
-    [BAR_CHART(id=COMPONENTS_IDS['bar_chart']), PIE_CHART()])
+CHARTS = COLUMN_SECTION(id="charts")
 
-CHARTS_SECTION = COLUMN_SECTION([CHARTS_CONTROL_SECTION, CHARTS])
+CHARTS_SECTION = COLUMN_SECTION(
+    [CHARTS_CONTROL_SECTION, CHARTS], id=COMPONENTS_IDS['charts_section'], hide=True)
 
-TABLE_SECTION = COLUMN_SECTION(TABLE(), id=COMPONENTS_IDS['table_section'])
+TABLE_SECTION = COLUMN_SECTION(id=COMPONENTS_IDS['table_section'], hide=True)
 
 CHARTS_BUTTON = BUTTON(
     children=TEXT('component_show_charts_label'),
@@ -70,7 +65,7 @@ END_APP_BUTTON = BUTTON(
 )
 
 CONTROL_BUTTONS = ROW_SECTION(
-    children=[DATABASE_BUTTON, CHARTS_BUTTON, END_APP_BUTTON], id=COMPONENTS_IDS["control_buttons"])
+    children=[DATABASE_BUTTON, CHARTS_BUTTON, END_APP_BUTTON], id=COMPONENTS_IDS["control_buttons"], hide=True)
 
 ALERTS_SECTION = COLUMN_SECTION(id=COMPONENTS_IDS["alerts_section"])
 
@@ -97,17 +92,18 @@ INFO_CARDS = ROW_SECTION([DATABASE_CARD, AUTHORS_CARD],
 HEADER_SECTION = COLUMN_SECTION([MAIN_TITLE(), INFO_CARDS, ])
 
 APP_STORE = [
-    STORE(STORE_IDS['done']),
-    STORE(STORE_IDS['error']),
-    STORE(STORE_IDS['first_dimension_label']),
+    STORE(STORE_IDS['error_message']),
     STORE(STORE_IDS['first_dimension']),
-    STORE(STORE_IDS['loading']),
-    STORE(STORE_IDS['second_dimension_label']),
+    STORE(STORE_IDS['loading_message']),
     STORE(STORE_IDS['second_dimension']),
-    STORE(STORE_IDS['success']),
+    STORE(STORE_IDS['status']),
+    STORE(STORE_IDS['success_message']),
+    STORE(STORE_IDS['second_dimension_label']),
+    STORE(STORE_IDS['first_dimension_label']),
 ]
 
-BEHAVIOR_SECTION = [*APP_STORE, INTERVAL(id=COMPONENTS_IDS["app_interval"])]
+BEHAVIOR_SECTION = [
+    *APP_STORE, INTERVAL(id=COMPONENTS_IDS["start_app_interval"], max_intervals=max_start_app_iterations)]
 
 
 app_layout = MAIN_SECTION(

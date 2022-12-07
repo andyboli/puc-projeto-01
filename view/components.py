@@ -5,23 +5,32 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.graph_objects as go
 
-from controller.orchestrator import start_app_iterations
 from controller.reader import lang
+from database.constants import PUC_DB_HOMELESS_COLUMNS_TABLE_LABELS, PUC_DB_HOMELESS_COLUMNS_LABELS
 
 
-def ALERT(children="", color="success", text_color="success"):
+def SUCCESS_ICON():
+    return html.I(className="bi bi-check-circle-fill me-2")
+
+
+def ERROR_ICON():
+    return html.I(className="bi bi-x-octagon-fill me-2")
+
+
+def ALERT(children=any, color="success"):
     return dbc.Alert(
-        children=[
-            html.I(className="bi bi-check-circle-fill me-2"),
-            children,
-        ],
+        children=children,
         color=color,
         className="default-section default-row-section default-border",
     )
 
 
-def BAR_CHART(id: str = ''):
-    return dcc.Graph(id=id)
+def BAR_CHART(figure):
+    return dcc.Graph(figure=figure)
+
+
+def BIG_SPINNER(id: str = ''):
+    return html.Div(dbc.Spinner(size="md", color="dark"), id=id, className="default-section")
 
 
 def BOLD_TEXT(key: str):
@@ -56,7 +65,7 @@ def DATE_PICKER_RANGE(id: str):
         display_format="DD MM YYYY",
         id=id,
         min_date_allowed='2019-01-01',
-        className='default-section default-border'
+        className='default-section default-border',
     )
 
 
@@ -69,12 +78,12 @@ def DROPDOWN_ITEM(option: tuple, id: str):
     return dbc.DropdownMenuItem(value, id=key + '-' + id)
 
 
-def INTERVAL(id: str):
+def INTERVAL(id: str, max_intervals: int):
     return dcc.Interval(
         disabled=True,
         id=id,
-        interval=2*1000,
-        max_intervals=start_app_iterations,
+        interval=2.1*1000,
+        max_intervals=max_intervals,
         n_intervals=0,
     )
 
@@ -91,14 +100,14 @@ def MAIN_TITLE():
     return html.H1(lang('component_main_title_text'), className='default-typography main-title')
 
 
-def PIE_CHART():
-    first_dimension_values = ["US", "China", "European Union", "Russian Federation", "Brazil", "India",
-                              "Rest of World"]
+def PIE_CHART(first_dimension_values, second_dimension_values):
+    # first_dimension_values = ["US", "China", "European Union", "Russian Federation", "Brazil", "India",
+    #                           "Rest of World"]
 
-    second_dimension_values = ["GHG", "CO2", "CH4", "CH3", "O2"]
+    # second_dimension_values = ["GHG", "CO2", "CH4", "CH3", "O2"]
 
     second_dimension_length = len(second_dimension_values)
-
+    print('second_dimension_values', second_dimension_values)
     cols = 2
     rows = ceil(second_dimension_length / cols)
 
@@ -113,13 +122,13 @@ def PIE_CHART():
 
     annotations = []
 
-    for name in second_dimension_values:
-        value_index = second_dimension_values.index(name) + 1
+    for name, values in second_dimension_values.items():
+        value_index = list(second_dimension_values.keys()).index(name) + 1
         col = cols - value_index % cols
         row = ceil(value_index / cols)
         x = initial_x + (col - 1)*x_gap
         y = initial_y - (row - 1)*y_gap
-        fig.add_trace(go.Pie(labels=first_dimension_values, values=[16, 15, 12, 6, 5, 4, 42], name=name),
+        fig.add_trace(go.Pie(labels=first_dimension_values, values=values, name=name),
                       col=col, row=row)
         annotations.append(dict(text=name, x=x, y=y,
                            font_size=20, showarrow=False))
@@ -146,11 +155,12 @@ def STORE(id: str):
     return dcc.Store(id=id)
 
 
-def TABLE():
-    df = pd.read_csv(
-        'https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
-
-    return dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns])
+def TABLE(data: str):
+    return dash_table.DataTable([{"month_year": month_year, "age": age,
+                                  "gender": gender, "birthday": birthday,
+                                  "schooling": schooling, "ethnicity": ethnicity,
+                                  "region": region, "period": period, "social_welfare": social_welfare} for _, month_year, age, gender, birthday, schooling, ethnicity, region, period, social_welfare in data],
+                                [{"name": PUC_DB_HOMELESS_COLUMNS_TABLE_LABELS[column], "id": column} for column in ['month_year', 'age', 'gender', 'birthday', 'schooling', 'ethnicity', 'region', 'period', 'social_welfare']])
 
 
 def TEXT(key: str, id: str = ''):
