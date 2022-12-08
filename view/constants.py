@@ -2,6 +2,8 @@ COMPONENTS_IDS = {
     'alerts_section': 'alerts-section',
     'table_section': 'table-section',
     "start_app_interval": "start-app-interval",
+    "select_app_interval": "select-app-interval",
+    'select_table_interval': 'select-table-interval',
     "bar_chart_button": "bar-chart-button",
     "bar_chart": "bar-chart",
     "pie_chart": "pie-chart",
@@ -23,7 +25,7 @@ COMPONENTS_IDS = {
     "start_app_button": "start-app-button",
     "status_section": "status-section",
     'table_section_spinner': 'table-section-spinner',
-    'select_data_interval': 'select-data-interval',
+    'select_chart_interval': 'select-chart-interval',
     'charts_section': 'charts-section',
     "charts": "charts"
 }
@@ -32,6 +34,11 @@ STATUS_TYPES = {
     "finished": "finished",
     "initialized": "initialized",
     "uninitialized": "uninitialized",
+}
+
+STATUS_GRAPH = {
+    "loading": "loading",
+    "done": "done"
 }
 
 
@@ -47,4 +54,5 @@ STORE_IDS = {
     "status": "status",
     "second_dimension_label": "second_dimension_label",
     "first_dimension_label": "first_dimension_label",
+    "status_graph": 'status-graph'
 }

@@ -1,6 +1,7 @@
 from dash import ctx
 
-from controller.orchestrator import max_start_app_iterations, start_app, select_data
+from controller.orchestrator import max_start_app_iterations, start_app, select_data, max_select_app_iterations, select_data_now
+from dash import (dash_table, dcc, html)
 from controller.reader import lang
 from controller.mapper import map_date, map_bar_chart_data
 from view.constants import STATUS_TYPES
@@ -99,12 +100,40 @@ def show_control_buttons(store_status: str):
         return hide_component
 
 
-def update_table_section(table_section_style):
-    if table_section_style == show_component:
-        data = select_data()
-        return TABLE(data)
-    else:
-        return []
+def update_table_section(table_section_style, show_database_button_n_clicks, select_table_interval_n_intervals, table_section):
+    data = []
+    children = table_section
+    disabled = True
+    table_section_hided = table_section_style == hide_component
+    if table_section_hided:
+        return children, True
+
+    table_section_first_render = show_database_button_n_clicks == 1 and not select_table_interval_n_intervals
+
+    if table_section_first_render:
+        return children, False
+
+    interval_finished = select_table_interval_n_intervals > max_select_app_iterations
+
+    if not interval_finished:
+        try:
+            data, _, loading, error = next(select_data)
+            if data:
+                children = TABLE(data)
+                disabled = True
+
+            if loading:
+                children = loading
+                disabled = False
+
+            if error:
+                children = error
+                disabled = True
+
+        except StopIteration:
+            disabled = True
+
+    return children, disabled
 
 
 def show_section(show_button_n_clicks_timestamp, hide_button_n_clicks_timestamp):
@@ -168,7 +197,7 @@ def update_dimension_dropdown_label(dimension_label, other_dimension_label, sele
     return dimension_label
 
 
-def get_pie_chart(first_dimension, second_dimension, start_date, end_date):
+def get_pie_chart(first_dimension, second_dimension, start_date, end_date, select_chart_interval_n_intervals):
     data = []
     min_year = ''
     min_month = ''
@@ -177,6 +206,7 @@ def get_pie_chart(first_dimension, second_dimension, start_date, end_date):
     hasDistinctDimensions = first_dimension != second_dimension
     hasDimensions = first_dimension and first_dimension != 'empty' and second_dimension and second_dimension != 'empty'
     hasPeriod = start_date and end_date
+    has_some_period = start_date or end_date
     if hasPeriod:
         min_year, min_month = map_date(start_date)
         max_year, max_month = map_date(end_date)
@@ -185,8 +215,8 @@ def get_pie_chart(first_dimension, second_dimension, start_date, end_date):
         first_dimension_range = PUC_DB_HOMELESS_COLUMNS_RANGES[first_dimension]
         second_dimension_values = {}
         for first_dimension_value in first_dimension_range:
-            value_data_raw = select_data(first_column=first_dimension, second_column=second_dimension, first_column_value=first_dimension_value,
-                                         max_month=max_month, max_year=max_year, min_year=min_year, min_month=min_month)
+            value_data_raw, _, error = select_data_now(first_column=first_dimension, second_column=second_dimension, first_column_value=first_dimension_value,
+                                                       max_month=max_month, max_year=max_year, min_year=min_year, min_month=min_month)
             for amout, second_dimension_value in value_data_raw:
                 try:
                     second_dimension_values[second_dimension_value].append(
@@ -197,7 +227,12 @@ def get_pie_chart(first_dimension, second_dimension, start_date, end_date):
     return data
 
 
-def get_bar_chart(first_dimension, second_dimension, start_date, end_date):
+# def calling():
+#     keep_loop = True
+#     while keep_loop:
+
+
+def get_bar_chart(first_dimension, second_dimension, start_date, end_date, select_chart_interval_n_intervals):
     data = []
     min_year = ''
     min_month = ''
@@ -209,14 +244,17 @@ def get_bar_chart(first_dimension, second_dimension, start_date, end_date):
     if hasPeriod:
         min_year, min_month = map_date(start_date)
         max_year, max_month = map_date(end_date)
+
     if hasDimensions and hasDistinctDimensions:
         first_dimension_range = PUC_DB_HOMELESS_COLUMNS_RANGES[first_dimension]
         for first_dimension_value in first_dimension_range:
-            value_data_raw = select_data(first_column=first_dimension, second_column=second_dimension, first_column_value=first_dimension_value,
-                                         max_month=max_month, max_year=max_year, min_year=min_year, min_month=min_month)
+            value_data_raw, success, error = select_data_now(first_column=first_dimension, second_column=second_dimension, first_column_value=first_dimension_value,
+                                                             max_month=max_month, max_year=max_year, min_year=min_year, min_month=min_month)
             amouts = []
             second_dimension_values = []
+            print('value_data_raw', value_data_raw)
             for amout, second_dimension_value in value_data_raw:
+
                 amouts.append(amout)
                 second_dimension_values.append(second_dimension_value)
             data.append({'type': 'bar', 'name': first_dimension_value,
@@ -225,15 +263,15 @@ def get_bar_chart(first_dimension, second_dimension, start_date, end_date):
     return data
 
 
-def update_chart(pie_chart_button_n_clicks_timestamp, bar_chart_button_n_clicks_timestamp, store_first_dimension, store_second_dimension, start_date, end_date):
+def update_charts(pie_chart_button_n_clicks_timestamp, bar_chart_button_n_clicks_timestamp, store_first_dimension, store_second_dimension, start_date, end_date, select_chart_interval_n_intervals):
     if pie_chart_button_n_clicks_timestamp is None and bar_chart_button_n_clicks_timestamp is None:
         return ''
     if pie_chart_button_n_clicks_timestamp is not None and bar_chart_button_n_clicks_timestamp is None:
-        return get_pie_chart(first_dimension=store_first_dimension, second_dimension=store_second_dimension, start_date=start_date, end_date=end_date)
+        return get_pie_chart(first_dimension=store_first_dimension, second_dimension=store_second_dimension, start_date=start_date, end_date=end_date, select_chart_interval_n_intervals=select_chart_interval_n_intervals)
     if pie_chart_button_n_clicks_timestamp is None and bar_chart_button_n_clicks_timestamp is not None:
-        return get_bar_chart(first_dimension=store_first_dimension, second_dimension=store_second_dimension, start_date=start_date, end_date=end_date)
+        return get_bar_chart(first_dimension=store_first_dimension, second_dimension=store_second_dimension, start_date=start_date, end_date=end_date, select_chart_interval_n_intervals=select_chart_interval_n_intervals)
     if pie_chart_button_n_clicks_timestamp > bar_chart_button_n_clicks_timestamp:
-        return get_pie_chart(first_dimension=store_first_dimension, second_dimension=store_second_dimension, start_date=start_date, end_date=end_date)
+        return get_pie_chart(first_dimension=store_first_dimension, second_dimension=store_second_dimension, start_date=start_date, end_date=end_date, select_chart_interval_n_intervals=select_chart_interval_n_intervals)
     if pie_chart_button_n_clicks_timestamp < bar_chart_button_n_clicks_timestamp:
-        return get_bar_chart(first_dimension=store_first_dimension, second_dimension=store_second_dimension, start_date=start_date, end_date=end_date)
+        return get_bar_chart(first_dimension=store_first_dimension, second_dimension=store_second_dimension, start_date=start_date, end_date=end_date, select_chart_interval_n_intervals=select_chart_interval_n_intervals)
     return ''

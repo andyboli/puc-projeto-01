@@ -101,17 +101,12 @@ def MAIN_TITLE():
 
 
 def PIE_CHART(first_dimension_values, second_dimension_values):
-    # first_dimension_values = ["US", "China", "European Union", "Russian Federation", "Brazil", "India",
-    #                           "Rest of World"]
-
-    # second_dimension_values = ["GHG", "CO2", "CH4", "CH3", "O2"]
-
     second_dimension_length = len(second_dimension_values)
     print('second_dimension_values', second_dimension_values)
     cols = 2
     rows = ceil(second_dimension_length / cols)
 
-    initial_x = cols * 0.19
+    initial_x = cols * 0.20
     initial_y = rows*0.31
 
     x_gap = 0.60

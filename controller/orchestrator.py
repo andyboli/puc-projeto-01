@@ -42,6 +42,8 @@ def start_app_iterator():
 
 start_app = start_app_iterator()
 
+max_restart_app_iterations = 2
+
 
 def restart_app_iterator():
     """Calls drop_database and close_connection with default values.
@@ -65,10 +67,39 @@ def restart_app_iterator():
 
 restart_app = restart_app_iterator()
 
+max_select_app_iterations = 2
 
-def select_data(first_column: str = '', second_column: str = '', first_column_value: str = '', max_year: str = '', min_year: str = '', min_month: str = '', max_month: str = ''):
+
+def select_data_iterator(first_column: str = '', second_column: str = '', first_column_value: str = '', max_year: str = '', min_year: str = '', min_month: str = '', max_month: str = ''):
+    """Calls select_table with default values.
+
+        Args:
+            first_column (str, optional): First column to group data. Defaults to ''.
+            second_column (str, optional): Second column to group data. Defaults to ''.
+            first_column_value (str, optional): First column value to filter data. Defaults to ''.
+            max_year (str, optional): Max year to filter data. Defaults to ''.
+            min_year (str, optional): Min year to filter data. Defaults to ''.
+            min_month (str, optional): Min month to filter data. Defaults to ''.
+            max_month (str, optional): Max month to filter data. Defaults to ''.
+
+        Yields:
+            data (list): Data filtered from table
+            success (str): Success message.
+            loading (str): Loading message.
+            error (str): Error message.
+    """
+    yield None, '', lang('select_table_start'), ''
     table_query = get_query(first_column=first_column, second_column=second_column, first_column_value=first_column_value, max_year=max_year,
                             min_year=min_year, min_month=min_month, max_month=max_month)
     data, success, error = select_table(table_query=table_query)
-    print(success, error)
-    return data
+    yield data, success, '', error
+
+
+def select_data_now(first_column: str = '', second_column: str = '', first_column_value: str = '', max_year: str = '', min_year: str = '', min_month: str = '', max_month: str = ''):
+    table_query = get_query(first_column=first_column, second_column=second_column, first_column_value=first_column_value, max_year=max_year,
+                            min_year=min_year, min_month=min_month, max_month=max_month)
+    data, success, error = select_table(table_query=table_query)
+    return data, success, error
+
+
+select_data = select_data_iterator()

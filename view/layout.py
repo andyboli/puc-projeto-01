@@ -7,7 +7,7 @@ from view.components import (BAR_CHART, BOLD_TEXT,
                              MAIN_SECTION, MAIN_TITLE,
                              PIE_CHART, ROW_SECTION, SPINNER,
                              STORE, TEXT)
-from controller.orchestrator import max_start_app_iterations
+from controller.orchestrator import max_start_app_iterations, max_select_app_iterations
 
 BAR_CHART_BUTTON = BUTTON(
     children=TEXT('component_bar_chart_text'),
@@ -100,10 +100,13 @@ APP_STORE = [
     STORE(STORE_IDS['success_message']),
     STORE(STORE_IDS['second_dimension_label']),
     STORE(STORE_IDS['first_dimension_label']),
+    STORE(STORE_IDS['status_graph']),
+
+
 ]
 
 BEHAVIOR_SECTION = [
-    *APP_STORE, INTERVAL(id=COMPONENTS_IDS["start_app_interval"], max_intervals=max_start_app_iterations)]
+    *APP_STORE, INTERVAL(id=COMPONENTS_IDS["start_app_interval"], max_intervals=max_start_app_iterations), INTERVAL(id=COMPONENTS_IDS["select_table_interval"], max_intervals=max_select_app_iterations), INTERVAL(id=COMPONENTS_IDS["select_chart_interval"], max_intervals=max_select_app_iterations)]
 
 
 app_layout = MAIN_SECTION(
