@@ -289,36 +289,35 @@ def map_homeless_data(data: list):
         return mapped_data, success, error
 
 
-def map_bar_chart_data(data):
-    columns = {}
-    mapped_data = []
-    for amout, first_column, second_column in data:
-        if first_column not in columns.keys():
-            columns[first_column] = {}
-        if second_column not in columns[first_column].keys():
-            columns[first_column][second_column] = amout
-        else:
-            columns[first_column][second_column] = [
-                *columns[first_column][second_column], amout]
-    for first_column in columns.keys():
-        second_columns = columns[first_column].keys()
-        amouts = columns[first_column].values()
-        mapped_data.append(
-            {'type': 'bar', 'name': first_column, 'x': list(second_columns), 'y': list(amouts)})
-    return mapped_data
+def map_age_range(age):
+    if not age:
+        return 'Não informado'
+    if age < 1:
+        return 'Menor de 1 ano'
+    elif age >= 1 and age <= 4:
+        return '1 a 4 anos'
+    elif age >= 5 and age <= 9:
+        return '5 a 9 anos'
+    elif age >= 10 and age <= 14:
+        return '10 a 14 anos'
+    elif age >= 15 and age <= 19:
+        return '15 a 19 anos'
+    elif age >= 20 and age <= 29:
+        return '20 a 29 anos'
+    elif age >= 30 and age <= 39:
+        return '30 a 39 anos'
+    elif age >= 40 and age <= 49:
+        return '40 a 49 anos'
+    elif age >= 50 and age <= 59:
+        return '50 a 59 anos'
+    elif age >= 60 and age <= 69:
+        return '60 a 69 anos'
+    elif age >= 70 and age <= 79:
+        return '70 a 79 anos'
+    return '80 anos e mais'
 
 
-# def map_age_range(age):
-#     if age < 12:
-#         return '0-11'
-#     elif age >= 12 and age < 18:
-#         return '12-17'
-#     elif age >= 18 and age < 30:
-#         return '18-29'
-#     elif age >= 30 and age < 60:
-#         return '30-59'
-#     else:
-#         return '>60'
-
-
-# def map_column_range():
+def map_social_welfare_range(social_welfare):
+    if social_welfare:
+        return 'Possui'
+    return 'Não possui'

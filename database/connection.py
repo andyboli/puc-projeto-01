@@ -3,7 +3,7 @@ from mysql.connector import (errorcode, MySQLConnection)
 
 from controller.reader import lang
 from database.constants import (CONNECTION_CONFIG, PUC_DB, PUC_DB_CREATE_QUERY, PUC_DB_HOMELESS_CREATE_QUERY, PUC_DB_HOMELESS_INSERT_QUERY,
-                                PUC_DB_HOMELESS_SELECT_QUERY_COLUMNS, PUC_DB_HOMELESS_SELECT_QUERY_PERIOD, PUC_DB_HOMELESS_SELECT_QUERY, PUC_DB_HOMELESS)
+                                PUC_DB_HOMELESS_SELECT_QUERY_COLUMNS, PUC_DB_HOMELESS_SELECT_QUERY_PERIOD, PUC_DB_HOMELESS_SELECT_QUERY, PUC_DB_HOMELESS, AGE_COLUMN, PUC_DB_HOMELESS_SELECT_QUERY_CUSTON_PERIOD, PUC_DB_HOMELESS_SELECT_QUERY_CUSTON_COLUMNS, PUC_DB_HOMELESS_AGE_RANGES_QUERY, SOCIAL_WELFARE_COLUMN, PUC_DB_HOMELESS_SOCIAL_WELFARE_RANGES_QUERY)
 
 
 def open_connection():
@@ -195,12 +195,25 @@ def get_query(first_column: str = '', second_column: str = '', first_column_valu
     table_query = PUC_DB_HOMELESS_SELECT_QUERY
     hasColumns = bool(first_column and second_column and first_column_value)
     hasPeriod = bool(max_year and min_year and min_month and max_month)
-    if hasColumns and hasPeriod:
+    if hasColumns and hasPeriod and first_column != AGE_COLUMN and first_column != SOCIAL_WELFARE_COLUMN:
         table_query = PUC_DB_HOMELESS_SELECT_QUERY_PERIOD.format(
             first_column=first_column, second_column=second_column, first_column_value=first_column_value, max_year=max_year, min_year=min_year, min_month=min_month, max_month=max_month)
-    if hasColumns and not hasPeriod:
+    if hasColumns and not hasPeriod and first_column != AGE_COLUMN and first_column != SOCIAL_WELFARE_COLUMN:
         table_query = PUC_DB_HOMELESS_SELECT_QUERY_COLUMNS.format(
             first_column=first_column, second_column=second_column, first_column_value=first_column_value)
+    if hasColumns and hasPeriod and first_column == AGE_COLUMN:
+        table_query = PUC_DB_HOMELESS_SELECT_QUERY_CUSTON_PERIOD.format(
+            first_column=first_column, second_column=second_column, custon_filter=PUC_DB_HOMELESS_AGE_RANGES_QUERY[first_column_value], max_year=max_year, min_year=min_year, min_month=min_month, max_month=max_month)
+    if hasColumns and not hasPeriod and first_column == AGE_COLUMN:
+        table_query = PUC_DB_HOMELESS_SELECT_QUERY_CUSTON_COLUMNS.format(
+            first_column=first_column, second_column=second_column, custon_filter=PUC_DB_HOMELESS_AGE_RANGES_QUERY[first_column_value])
+    if hasColumns and hasPeriod and first_column == SOCIAL_WELFARE_COLUMN:
+        table_query = PUC_DB_HOMELESS_SELECT_QUERY_CUSTON_PERIOD.format(
+            first_column=first_column, second_column=second_column, custon_filter=PUC_DB_HOMELESS_SOCIAL_WELFARE_RANGES_QUERY[first_column_value], max_year=max_year, min_year=min_year, min_month=min_month, max_month=max_month)
+    if hasColumns and not hasPeriod and first_column == SOCIAL_WELFARE_COLUMN:
+        table_query = PUC_DB_HOMELESS_SELECT_QUERY_CUSTON_COLUMNS.format(
+            first_column=first_column, second_column=second_column, custon_filter=PUC_DB_HOMELESS_SOCIAL_WELFARE_RANGES_QUERY[first_column_value])
+
     return table_query
 
 

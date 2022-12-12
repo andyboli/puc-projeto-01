@@ -54,6 +54,10 @@ PUC_DB_HOMELESS_INSERT_QUERY = 'INSERT INTO {db_name}.{table_name} (month_year, 
 PUC_DB_HOMELESS_SELECT_QUERY_COLUMNS = 'SELECT amount, {second_column} FROM (SELECT COUNT(*) AS amount, {first_column}, {second_column} ' + 'FROM {db_name}.{table_name} '.format(
     db_name=PUC_DB, table_name=PUC_DB_HOMELESS) + "GROUP BY {first_column}, {second_column}) AS filted_columns WHERE {first_column} = '{first_column_value}'"
 
+PUC_DB_HOMELESS_SELECT_QUERY_CUSTON_COLUMNS = 'SELECT amount, {second_column} FROM (SELECT COUNT(*) AS amount, {first_column}, {second_column} ' + 'FROM {db_name}.{table_name} '.format(
+    db_name=PUC_DB, table_name=PUC_DB_HOMELESS) + "GROUP BY {first_column}, {second_column}) AS filted_columns WHERE {custon_filter}"
+
+
 PUC_DB_HOMELESS_MAP_YEAR = 'CAST(SUBSTRING({column}, -4, 4) AS SIGNED)'.format(
     column=MONTH_YEAR_COLUMN)
 
@@ -66,6 +70,14 @@ PUC_DB_HOMELESS_SELECT_QUERY_PERIOD = 'SELECT amount, {second_column} FROM (SELE
             mapped_year=PUC_DB_HOMELESS_MAP_YEAR) + '<= {max_year} ' + 'and {mapped_month} '.format(
                 mapped_month=PUC_DB_HOMELESS_MAP_MONTH) + '>= {min_month} ' + 'and {mapped_month} '.format(
                     mapped_month=PUC_DB_HOMELESS_MAP_MONTH) + "<= {max_month} GROUP BY {first_column}, {second_column}) AS filted_columns_period WHERE {first_column} = '{first_column_value}'"
+
+
+PUC_DB_HOMELESS_SELECT_QUERY_CUSTON_PERIOD = 'SELECT amount, {second_column} FROM (SELECT COUNT(*) AS amount, {first_column}, {second_column} ' + 'FROM {db_name}.{table_name} '.format(
+    db_name=PUC_DB, table_name=PUC_DB_HOMELESS) + 'WHERE {mapped_year} '.format(
+        mapped_year=PUC_DB_HOMELESS_MAP_YEAR) + '>= {min_year} ' + 'and {mapped_year} '.format(
+            mapped_year=PUC_DB_HOMELESS_MAP_YEAR) + '<= {max_year} ' + 'and {mapped_month} '.format(
+                mapped_month=PUC_DB_HOMELESS_MAP_MONTH) + '>= {min_month} ' + 'and {mapped_month} '.format(
+                    mapped_month=PUC_DB_HOMELESS_MAP_MONTH) + "<= {max_month} GROUP BY {first_column}, {second_column}) AS filted_columns_period WHERE {custon_filter}"
 
 
 PUC_DB_HOMELESS_SELECT_QUERY = 'SELECT * FROM {db_name}.{table_name} '.format(
@@ -110,7 +122,7 @@ HOMELESS_PERIODS = ['Mais de dez anos', 'Entre dois e cinco anos', 'Ate seis mes
                     'Entre um e dois anos', 'Entre seis meses e um ano', 'Entre cinco e dez anos']
 
 
-HOMELESS_SOCIAL_WELFARES = [False, True]
+HOMELESS_SOCIAL_WELFARES = ['Possui', 'Não possui']
 
 
 HOMELESS_AGES_RANGE = ['Menor de 1 ano', '1 a 4 anos', '5 a 9 anos', '10 a 14 anos', '15 a 19 anos', '20 a 29 anos', '30 a 39 anos',
@@ -130,4 +142,25 @@ PUC_DB_HOMELESS_COLUMNS_RANGES = {
     'region': HOMELESS_REGIONS,
     'schooling': HOMELESS_SCHOOLINGS,
     'social_welfare': HOMELESS_SOCIAL_WELFARES,
+}
+
+
+PUC_DB_HOMELESS_AGE_RANGES_QUERY = {
+    'Menor de 1 ano': 'age < 1',
+    '1 a 4 anos': 'age >= 1 and age <= 4',
+    '5 a 9 anos': 'age >= 5 and age <= 9',
+    '10 a 14 anos': 'age >= 10 and age <= 14',
+    '15 a 19 anos': 'age >= 15 and age <= 19',
+    '20 a 29 anos': 'age >= 20 and age <= 29',
+    '30 a 39 anos': 'age >= 30 and age <= 39',
+    '40 a 49 anos': 'age >= 40 and age <= 49',
+    '50 a 59 anos': 'age >= 50 and age <= 59',
+    '60 a 69 anos': 'age >= 60 and age <= 69',
+    '70 a 79 anos': 'age >= 70 and age <= 79',
+    '80 anos e mais': 'age >= 80'
+}
+
+
+PUC_DB_HOMELESS_SOCIAL_WELFARE_RANGES_QUERY = {
+    'Possui': 'social_welfare is TRUE', 'Não possui': 'social_welfare is FALSE'
 }

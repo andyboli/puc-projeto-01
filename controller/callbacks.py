@@ -1,22 +1,19 @@
-from dash import ctx
 
-from controller.orchestrator import max_start_app_iterations, start_app, select_data, max_select_table_iterations, select_table_iterator
-from dash import (dash_table, dcc, html)
-from controller.reader import lang
-from controller.mapper import map_date, map_bar_chart_data
-from view.constants import STATUS_TYPES
-from view.components import ALERT, SUCCESS_ICON, ERROR_ICON, TABLE, BAR_CHART, PIE_CHART, SPINNER
 from database.constants import (PUC_DB_HOMELESS_COLUMNS_LABELS,
                                 AGE_COLUMN,
                                 PUC_DB_HOMELESS_COLUMNS_RANGES,
                                 ETHNICITY_COLUMN,
                                 GENDER_COLUMN,
-
                                 PERIOD_COLUMN,
                                 REGION_COLUMN,
                                 SCHOOLING_COLUMN,
                                 SOCIAL_WELFARE_COLUMN
                                 )
+from controller.orchestrator import max_start_app_iterations, start_app, select_data, max_select_table_iterations, select_table_iterator
+from controller.reader import lang
+from controller.mapper import map_date, map_age_range, map_social_welfare_range
+from view.components import ALERT, SUCCESS_ICON, ERROR_ICON, TABLE, BAR_CHART, PIE_CHART, SPINNER
+from view.constants import STATUS_TYPES
 
 hide_component = {'display': 'none'}
 show_component = {'display': 'flex'}
@@ -78,6 +75,11 @@ def get_bar_chart(first_column, second_column, max_month, max_year, min_year, mi
         amouts = []
         second_column_values = []
         for amout, second_column_value in value_data_raw:
+            if second_column == AGE_COLUMN:
+                second_column_value = map_age_range(second_column_value)
+            if second_column == SOCIAL_WELFARE_COLUMN:
+                second_column_value = map_social_welfare_range(
+                    second_column_value)
             amouts.append(amout)
             second_column_values.append(second_column_value)
         data.append({'type': 'bar', 'name': first_column_value,
@@ -102,6 +104,11 @@ def get_pie_chart(first_column, second_column, max_month, max_year, min_year, mi
             break
         for amout, second_column_value in value_data_raw:
             try:
+                if second_column == AGE_COLUMN:
+                    second_column_value = map_age_range(second_column_value)
+                if second_column == SOCIAL_WELFARE_COLUMN:
+                    second_column_value = map_social_welfare_range(
+                        second_column_value)
                 second_column_values[second_column_value].append(
                     amout)
             except:

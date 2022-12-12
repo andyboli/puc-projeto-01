@@ -82,3 +82,26 @@ def select_table_iterator(select_table_callback):
     yield None, lang('select_table_start').format(PUC_DB_HOMELESS), ''
     data, error = select_table_callback()
     yield data, '', error
+
+
+def restart_app_iterator():
+    """Calls drop_database and close_connection with default values.
+
+    Yields:
+        success (str): Success message.
+        loading (str): Loading message.
+        error (str): Error message.
+    """
+    try:
+        yield '', lang('drop_database_start'), ''
+        success, error = drop_database()
+        yield success, '', error
+
+        yield '', lang('close_connection_start'), ''
+        success, error = close_connection()
+        yield success, '', error
+    except Exception as err:
+        yield '', '', lang("restart_app_error").format(err)
+
+
+restart_app = restart_app_iterator()

@@ -95,7 +95,6 @@ def create_callbacks(app: Dash):
             component_id=STORE_IDS["status"], component_property='data'),
     )
     def display_control_buttons_callback(status):
-        return {'display': 'flex'}
         return display_control_buttons(status)
 
     @app.callback(
