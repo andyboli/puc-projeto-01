@@ -1,11 +1,11 @@
 from dash import ctx
 
-from controller.orchestrator import max_start_app_iterations, start_app, select_data, max_select_app_iterations, select_data_now
+from controller.orchestrator import max_start_app_iterations, start_app, select_data, max_select_table_iterations, select_table_iterator
 from dash import (dash_table, dcc, html)
 from controller.reader import lang
 from controller.mapper import map_date, map_bar_chart_data
 from view.constants import STATUS_TYPES
-from view.components import ALERT, SUCCESS_ICON, ERROR_ICON, TABLE, BAR_CHART, PIE_CHART
+from view.components import ALERT, SUCCESS_ICON, ERROR_ICON, TABLE, BAR_CHART, PIE_CHART, SPINNER
 from database.constants import (PUC_DB_HOMELESS_COLUMNS_LABELS,
                                 AGE_COLUMN,
                                 PUC_DB_HOMELESS_COLUMNS_RANGES,
@@ -22,121 +22,29 @@ hide_component = {'display': 'none'}
 show_component = {'display': 'flex'}
 
 
-def disabled_start_app_interval(store_status: str):
-    return store_status == STATUS_TYPES['uninitialized'] or store_status == STATUS_TYPES['finished']
+def disabled_create_graph_button(first_column, second_column, start_date, end_date):
+    hasColumns = first_column and first_column != 'empty' and second_column and second_column != 'empty'
+    sameColumns = first_column == second_column
+    halfPeriod = start_date and not end_date or not start_date and end_date
+    return not hasColumns or sameColumns or halfPeriod
 
 
-def update_store_with_start_app_interval(n_intervals: int):
-    status = STATUS_TYPES['initialized']
-    success = ''
-    loading = ''
-    error = ''
-    try:
-        success, loading, error = next(start_app)
-        if n_intervals == max_start_app_iterations:
-            status = STATUS_TYPES['finished']
-    except StopIteration:
-        status = STATUS_TYPES['finished']
-    finally:
-        return status, success, loading,  error
+def disabled_start_app_button(status: str):
+    return status == STATUS_TYPES['finished']
 
 
-def update_store_with_start_button(start_app_button_clicked: bool):
-    if start_app_button_clicked:
-        return STATUS_TYPES['initialized']
-    else:
-        return STATUS_TYPES['uninitialized']
+def disabled_start_app_interval(status: str):
+    return status == STATUS_TYPES['uninitialized'] or status == STATUS_TYPES['finished']
 
 
-def update_store(start_app_interval_n_intervals: int, start_app_button_clicked: bool):
-    status = STATUS_TYPES['uninitialized']
-    success = ''
-    loading = ''
-    error = ''
-    print("start_app_interval_n_intervals", start_app_interval_n_intervals)
-    if start_app_interval_n_intervals:
-        status, success, loading, error = update_store_with_start_app_interval(
-            start_app_interval_n_intervals)
-    else:
-        status = update_store_with_start_button(start_app_button_clicked)
-    return status, success, loading,  error
-
-
-def update_alert_section(store_success_message: str, store_error_message: str, alerts_section_children: any):
-    if store_success_message and not alerts_section_children:
-        return [ALERT([SUCCESS_ICON(), store_success_message])]
-    elif store_success_message and alerts_section_children:
-        return [*alerts_section_children, ALERT([SUCCESS_ICON(), store_success_message])]
-    elif store_error_message and not alerts_section_children:
-        return [ALERT([ERROR_ICON(), store_error_message], color='danger')]
-    elif store_error_message and alerts_section_children:
-        return [*alerts_section_children, ALERT([ERROR_ICON(), store_error_message], color='danger')]
-    return alerts_section_children
-
-
-def show_start_app_button_spinner(store_status: str):
-    if store_status == STATUS_TYPES['initialized']:
+def display_control_buttons(status: str):
+    if status == STATUS_TYPES['finished']:
         return show_component
     else:
         return hide_component
 
 
-def update_start_app_button_text(store_status: str, store_loading_message: str):
-    if store_status == STATUS_TYPES['uninitialized'] or store_status == STATUS_TYPES['finished']:
-        return lang("component_start_app_label")
-    elif store_status == STATUS_TYPES['initialized']:
-        return store_loading_message
-    return ''
-
-
-def disabled_start_app_button(store_status: str):
-    return store_status == STATUS_TYPES['finished']
-
-
-def show_control_buttons(store_status: str):
-    if store_status == STATUS_TYPES['finished']:
-        return show_component
-    else:
-        return hide_component
-
-
-def update_table_section(table_section_style, show_database_button_n_clicks, select_table_interval_n_intervals, table_section):
-    data = []
-    children = table_section
-    disabled = True
-    table_section_hided = table_section_style == hide_component
-    if table_section_hided:
-        return children, True
-
-    table_section_first_render = show_database_button_n_clicks == 1 and not select_table_interval_n_intervals
-
-    if table_section_first_render:
-        return children, False
-
-    interval_finished = select_table_interval_n_intervals > max_select_app_iterations
-
-    if not interval_finished:
-        try:
-            data, _, loading, error = next(select_data)
-            if data:
-                children = TABLE(data)
-                disabled = True
-
-            if loading:
-                children = loading
-                disabled = False
-
-            if error:
-                children = error
-                disabled = True
-
-        except StopIteration:
-            disabled = True
-
-    return children, disabled
-
-
-def show_section(show_button_n_clicks_timestamp, hide_button_n_clicks_timestamp):
+def display_section(show_button_n_clicks_timestamp, hide_button_n_clicks_timestamp):
     if show_button_n_clicks_timestamp is None and hide_button_n_clicks_timestamp is None:
         return hide_component
     elif show_button_n_clicks_timestamp is not None and hide_button_n_clicks_timestamp is None:
@@ -150,17 +58,102 @@ def show_section(show_button_n_clicks_timestamp, hide_button_n_clicks_timestamp)
     return hide_component
 
 
-def hide_option(child, value):
-    if child['props']['children'] == value:
-        child['props']['class_name'] = 'default-hide-section'
+def display_start_app_button_spinner(status: str):
+    if status == STATUS_TYPES['initialized']:
+        return show_component
     else:
-        child['props']['class_name'] = 'default-show-section'
-    return child
+        return hide_component
 
 
-def update_selected_dimension(age_timestamp, gender_timestamp, schooling_timestamp, ethnicity_timestamp, region_timestamp, social_welfare_timestamp, period_timestamp):
-    selected_field = list(filter(lambda dimension: dimension is not None, [age_timestamp, gender_timestamp, schooling_timestamp, ethnicity_timestamp,
-                                                                           region_timestamp, social_welfare_timestamp, period_timestamp]))
+def get_bar_chart(first_column, second_column, max_month, max_year, min_year, min_month):
+    first_column_range = PUC_DB_HOMELESS_COLUMNS_RANGES[first_column]
+    data = []
+    error = ''
+    for first_column_value in first_column_range:
+        value_data_raw, error = select_data(first_column=first_column, second_column=second_column, first_column_value=first_column_value,
+                                            max_month=max_month, max_year=max_year, min_year=min_year, min_month=min_month)
+        if error:
+            error = error
+            break
+        amouts = []
+        second_column_values = []
+        for amout, second_column_value in value_data_raw:
+            amouts.append(amout)
+            second_column_values.append(second_column_value)
+        data.append({'type': 'bar', 'name': first_column_value,
+                     'x': second_column_values, 'y': amouts})
+    if (data and len(data)):
+        return [BAR_CHART(figure={"data": data})]
+    if (error):
+        return ALERT(
+            [SPINNER(size='md', color='dark'), error], color='light')
+    return []
+
+
+def get_pie_chart(first_column, second_column, max_month, max_year, min_year, min_month):
+    error = ''
+    first_column_range = PUC_DB_HOMELESS_COLUMNS_RANGES[first_column]
+    second_column_values = {}
+    for first_column_value in first_column_range:
+        value_data_raw, error = select_data(first_column=first_column, second_column=second_column, first_column_value=first_column_value,
+                                            max_month=max_month, max_year=max_year, min_year=min_year, min_month=min_month)
+        if error:
+            error = error
+            break
+        for amout, second_column_value in value_data_raw:
+            try:
+                second_column_values[second_column_value].append(
+                    amout)
+            except:
+                second_column_values[second_column_value] = [amout]
+    if (error):
+        return ALERT(
+            [SPINNER(size='md', color='dark'), error], color='light')
+
+    return [PIE_CHART(first_column_values=first_column_range, second_column_values=second_column_values)]
+
+
+def update_alert_section(success_message: str, error_message: str, alerts_section: any):
+    if success_message and not alerts_section:
+        return [ALERT([SUCCESS_ICON(), success_message])]
+    elif success_message and alerts_section:
+        return [*alerts_section, ALERT([SUCCESS_ICON(), success_message])]
+    elif error_message and not alerts_section:
+        return [ALERT([ERROR_ICON(), error_message], color='danger')]
+    elif error_message and alerts_section:
+        return [*alerts_section, ALERT([ERROR_ICON(), error_message], color='danger')]
+    return alerts_section
+
+
+def update_chart(create_graph_button_n_clicks, first_column, second_column, start_date, end_date, chart_callback):
+    min_year = ''
+    min_month = ''
+    max_year = ''
+    max_month = ''
+    hasColumns = first_column and first_column != 'empty' and second_column and second_column != 'empty'
+    sameColumns = first_column == second_column
+    halfPeriod = start_date and not end_date or not start_date and end_date
+    hasPeriod = start_date and end_date
+    if hasPeriod:
+        min_year, min_month = map_date(start_date)
+        max_year, max_month = map_date(end_date)
+    if hasColumns and not halfPeriod and not sameColumns and create_graph_button_n_clicks:
+        return chart_callback(
+            first_column=first_column, second_column=second_column, max_month=max_month, max_year=max_year, min_year=min_year, min_month=min_month)
+    return []
+
+
+def update_column_dropdown_label(column_label, other_column_label, selected_other_column):
+    sameLabel = column_label == other_column_label
+    is_selected = column_label != lang("component_dropdown_label")
+    if sameLabel and is_selected and selected_other_column:
+        return lang("component_dropdown_label")
+    return column_label
+
+
+def update_selected_column(age_timestamp, gender_timestamp, schooling_timestamp, ethnicity_timestamp, region_timestamp, social_welfare_timestamp, period_timestamp):
+    selected_field = list(filter(lambda column: column is not None, [age_timestamp, gender_timestamp, schooling_timestamp, ethnicity_timestamp,
+                                                                     region_timestamp, social_welfare_timestamp, period_timestamp]))
 
     selected_field_timestamp = 0
 
@@ -185,93 +178,195 @@ def update_selected_dimension(age_timestamp, gender_timestamp, schooling_timesta
     return "empty", lang("component_dropdown_label")
 
 
-def update_other_dimension_dropdown(selected_dimension_label, other_dimension_children):
-    return list(map(lambda child: (hide_option(child=child, value=selected_dimension_label)), other_dimension_children))
+def update_start_app_button_text(status: str, loading_message: str):
+    if status == STATUS_TYPES['initialized']:
+        return loading_message
+    return lang("component_start_app_label")
 
 
-def update_dimension_dropdown_label(dimension_label, other_dimension_label, selected_other_dimension):
-    sameLabel = dimension_label == other_dimension_label
-    is_selected = dimension_label != lang("component_dropdown_label")
-    if sameLabel and is_selected and selected_other_dimension:
-        return lang("component_dropdown_label")
-    return dimension_label
+def update_store_with_start_button(start_app_button_clicked: bool):
+    if start_app_button_clicked:
+        return STATUS_TYPES['initialized']
+    else:
+        return STATUS_TYPES['uninitialized']
 
 
-def get_pie_chart(first_dimension, second_dimension, start_date, end_date, select_chart_interval_n_intervals):
+def update_store_with_start_app_interval(n_intervals: int):
+    status = STATUS_TYPES['initialized']
+    success = ''
+    loading = ''
+    error = ''
+    try:
+        success, loading, error = next(start_app)
+        if n_intervals == max_start_app_iterations:
+            status = STATUS_TYPES['finished']
+    except StopIteration:
+        status = STATUS_TYPES['finished']
+    finally:
+        return status, success, loading,  error
+
+
+def update_store(start_app_interval_n_intervals: int, start_app_button_clicked: bool):
+    status = STATUS_TYPES['uninitialized']
+    success = ''
+    loading = ''
+    error = ''
+    if start_app_interval_n_intervals:
+        status, success, loading, error = update_store_with_start_app_interval(
+            start_app_interval_n_intervals)
+    else:
+        status = update_store_with_start_button(start_app_button_clicked)
+    return status, success, loading,  error
+
+
+select_table = None
+
+
+def update_table_section(table_section_style, show_table_button_n_clicks, select_table_interval_n_intervals, table_section):
+    global select_table
     data = []
-    min_year = ''
-    min_month = ''
-    max_year = ''
-    max_month = ''
-    hasDistinctDimensions = first_dimension != second_dimension
-    hasDimensions = first_dimension and first_dimension != 'empty' and second_dimension and second_dimension != 'empty'
-    hasPeriod = start_date and end_date
-    has_some_period = start_date or end_date
-    if hasPeriod:
-        min_year, min_month = map_date(start_date)
-        max_year, max_month = map_date(end_date)
+    children = table_section
+    disabled = True
+    table_section_hided = table_section_style == hide_component
 
-    if hasDimensions and hasDistinctDimensions:
-        first_dimension_range = PUC_DB_HOMELESS_COLUMNS_RANGES[first_dimension]
-        second_dimension_values = {}
-        for first_dimension_value in first_dimension_range:
-            value_data_raw, _, error = select_data_now(first_column=first_dimension, second_column=second_dimension, first_column_value=first_dimension_value,
-                                                       max_month=max_month, max_year=max_year, min_year=min_year, min_month=min_month)
-            for amout, second_dimension_value in value_data_raw:
-                try:
-                    second_dimension_values[second_dimension_value].append(
-                        amout)
-                except:
-                    second_dimension_values[second_dimension_value] = [amout]
-        return [PIE_CHART(first_dimension_values=first_dimension_range, second_dimension_values=second_dimension_values)]
-    return data
+    if table_section_hided:
+        return children, True
+
+    table_section_first_render = show_table_button_n_clicks == 1 and not select_table_interval_n_intervals
+
+    if table_section_first_render:
+        select_table = select_table_iterator(select_data)
+        return children, False
+
+    interval_finished = select_table_interval_n_intervals > max_select_table_iterations
+
+    if not interval_finished and select_table:
+        try:
+            data, loading, error = next(select_table)
+            if data:
+                children = TABLE(data)
+                disabled = True
+
+            if loading:
+                children = ALERT(
+                    [SPINNER(size='md', color='dark'), loading], color='light')
+                disabled = False
+
+            if error:
+                children = ALERT(
+                    [SPINNER(size='md'), error], color='danger')
+                disabled = True
+
+        except StopIteration:
+            disabled = True
+
+    return children, disabled
+
+# CRYIN
+
+
+# def update_pie_chart(create_graph_button_n_clicks, first_column, second_column, start_date, end_date):
+
+
+def disabled_select_chart_interval(first_column, second_column, start_date, end_date, select_chart_interval_disabled):
+    if not select_chart_interval_disabled:
+        return select_chart_interval_disabled
+    hasColumns = first_column and first_column != 'empty' and second_column and second_column != 'empty'
+    sameColumns = first_column == second_column
+    halfPeriod = start_date and not end_date or not start_date and end_date
+    return halfPeriod or not hasColumns or sameColumns
+
+
+# def get_bar_chart_caller(first_column, second_column, max_month, max_year, min_year, min_month):
+
+#     return get_bar_chart(first_column, second_column, max_month, max_year, min_year, min_month, first_column_range)
+
+
+# def update_bar_chart(first_column, second_column, start_date, end_date):
+#     children = []
+#     error = ''
+#     min_year = ''
+#     min_month = ''
+#     max_year = ''
+#     max_month = ''
+#     hasColumns = first_column and first_column != 'empty' and second_column and second_column != 'empty'
+#     sameColumns = first_column == second_column
+#     halfPeriod = start_date and not end_date or not start_date and end_date
+#     hasPeriod = start_date and end_date
+#     if hasPeriod:
+#         min_year, min_month = map_date(start_date)
+#         max_year, max_month = map_date(end_date)
+#     if hasColumns and not halfPeriod and not sameColumns:
+#         try:
+#             data, error = select_data(
+#                 first_column=first_column, second_column=second_column, max_month=max_month, max_year=max_year, min_year=min_year, min_month=min_month)
+#             if (data and len(data)):
+#                 children = [BAR_CHART(figure={"data": data})]
+#             if (error):
+#                 return ALERT(
+#                     [SPINNER(size='md', color='dark'), error], color='light'), True
+#         except StopIteration:
+#             children = []
+#     return children
+
+
+def hide_option(child, value):
+    if child['props']['children'] == value:
+        child['props']['class_name'] = 'default-hide-section'
+    else:
+        child['props']['class_name'] = 'default-show-section'
+    return child
+
+
+def update_other_column_dropdown(selected_column_label, other_column_children):
+    return list(map(lambda child: (hide_option(child=child, value=selected_column_label)), other_column_children))
 
 
 # def calling():
 #     keep_loop = True
 #     while keep_loop:
 
+# def get_pie_chart(first_column, second_column, start_date, end_date):
+#     data = []
+#     min_year = ''
+#     min_month = ''
+#     max_year = ''
+#     max_month = ''
+#     error = ''
+#     hasDistinctDimensions = first_column != second_column
+#     hasDimensions = first_column and first_column != 'empty' and second_column and second_column != 'empty'
+#     hasPeriod = start_date and end_date
+#     if hasPeriod:
+#         min_year, min_month = map_date(start_date)
+#         max_year, max_month = map_date(end_date)
+#     if hasDimensions and hasDistinctDimensions:
+#         first_column_range = PUC_DB_HOMELESS_COLUMNS_RANGES[first_column]
+#         for first_column_value in first_column_range:
+#             value_data_raw, _, error = select_table(first_column=first_column, second_column=second_column, first_column_value=first_column_value,
+#                                                     max_month=max_month, max_year=max_year, min_year=min_year, min_month=min_month)
+#             if error:
+#                 error = error
+#                 break
+#             amouts = []
+#             second_column_values = []
+#             for amout, second_column_value in value_data_raw:
+#                 amouts.append(amout)
+#                 second_column_values.append(second_column_value)
+#             data.append({'type': 'bar', 'name': first_column_value,
+#                          'x': second_column_values, 'y': amouts})
+#         return [BAR_CHART(figure={"data": data})]
+#     return data, error
 
-def get_bar_chart(first_dimension, second_dimension, start_date, end_date, select_chart_interval_n_intervals):
-    data = []
-    min_year = ''
-    min_month = ''
-    max_year = ''
-    max_month = ''
-    hasDistinctDimensions = first_dimension != second_dimension
-    hasDimensions = first_dimension and first_dimension != 'empty' and second_dimension and second_dimension != 'empty'
-    hasPeriod = start_date and end_date
-    if hasPeriod:
-        min_year, min_month = map_date(start_date)
-        max_year, max_month = map_date(end_date)
 
-    if hasDimensions and hasDistinctDimensions:
-        first_dimension_range = PUC_DB_HOMELESS_COLUMNS_RANGES[first_dimension]
-        for first_dimension_value in first_dimension_range:
-            value_data_raw, success, error = select_data_now(first_column=first_dimension, second_column=second_dimension, first_column_value=first_dimension_value,
-                                                             max_month=max_month, max_year=max_year, min_year=min_year, min_month=min_month)
-            amouts = []
-            second_dimension_values = []
-            print('value_data_raw', value_data_raw)
-            for amout, second_dimension_value in value_data_raw:
-
-                amouts.append(amout)
-                second_dimension_values.append(second_dimension_value)
-            data.append({'type': 'bar', 'name': first_dimension_value,
-                         'x': second_dimension_values, 'y': amouts})
-        return [BAR_CHART(figure={"data": data})]
-    return data
-
-
-def update_charts(pie_chart_button_n_clicks_timestamp, bar_chart_button_n_clicks_timestamp, store_first_dimension, store_second_dimension, start_date, end_date, select_chart_interval_n_intervals):
+def update_charts(pie_chart_button_n_clicks_timestamp, bar_chart_button_n_clicks_timestamp, store_first_column, store_second_column, start_date, end_date, select_chart_interval_n_intervals):
     if pie_chart_button_n_clicks_timestamp is None and bar_chart_button_n_clicks_timestamp is None:
         return ''
     if pie_chart_button_n_clicks_timestamp is not None and bar_chart_button_n_clicks_timestamp is None:
-        return get_pie_chart(first_dimension=store_first_dimension, second_dimension=store_second_dimension, start_date=start_date, end_date=end_date, select_chart_interval_n_intervals=select_chart_interval_n_intervals)
+        return get_pie_chart(first_column=store_first_column, second_column=store_second_column, start_date=start_date, end_date=end_date, select_chart_interval_n_intervals=select_chart_interval_n_intervals)
     if pie_chart_button_n_clicks_timestamp is None and bar_chart_button_n_clicks_timestamp is not None:
-        return get_bar_chart(first_dimension=store_first_dimension, second_dimension=store_second_dimension, start_date=start_date, end_date=end_date, select_chart_interval_n_intervals=select_chart_interval_n_intervals)
+        return get_bar_chart(first_column=store_first_column, second_column=store_second_column, start_date=start_date, end_date=end_date, select_chart_interval_n_intervals=select_chart_interval_n_intervals)
     if pie_chart_button_n_clicks_timestamp > bar_chart_button_n_clicks_timestamp:
-        return get_pie_chart(first_dimension=store_first_dimension, second_dimension=store_second_dimension, start_date=start_date, end_date=end_date, select_chart_interval_n_intervals=select_chart_interval_n_intervals)
+        return get_pie_chart(first_column=store_first_column, second_column=store_second_column, start_date=start_date, end_date=end_date, select_chart_interval_n_intervals=select_chart_interval_n_intervals)
     if pie_chart_button_n_clicks_timestamp < bar_chart_button_n_clicks_timestamp:
-        return get_bar_chart(first_dimension=store_first_dimension, second_dimension=store_second_dimension, start_date=start_date, end_date=end_date, select_chart_interval_n_intervals=select_chart_interval_n_intervals)
+        return get_bar_chart(first_column=store_first_column, second_column=store_second_column, start_date=start_date, end_date=end_date, select_chart_interval_n_intervals=select_chart_interval_n_intervals)
     return ''

@@ -2,42 +2,35 @@ from dash import (dash_table, dcc, html)
 from math import ceil
 from plotly.subplots import make_subplots
 import dash_bootstrap_components as dbc
-import pandas as pd
 import plotly.graph_objects as go
 
 from controller.reader import lang
-from database.constants import PUC_DB_HOMELESS_COLUMNS_TABLE_LABELS, PUC_DB_HOMELESS_COLUMNS_LABELS
+from database.constants import PUC_DB_HOMELESS_COLUMNS_TABLE_LABELS
 
 
-def SUCCESS_ICON():
-    return html.I(className="bi bi-check-circle-fill me-2")
-
-
-def ERROR_ICON():
-    return html.I(className="bi bi-x-octagon-fill me-2")
-
-
-def ALERT(children=any, color="success"):
+def ALERT(children, color="success"):
     return dbc.Alert(
         children=children,
-        color=color,
         className="default-section default-row-section default-border",
+        color=color,
     )
 
 
 def BAR_CHART(figure):
-    return dcc.Graph(figure=figure)
-
-
-def BIG_SPINNER(id: str = ''):
-    return html.Div(dbc.Spinner(size="md", color="dark"), id=id, className="default-section")
+    return dcc.Graph(
+        className='default-section',
+        figure=figure,
+    )
 
 
 def BOLD_TEXT(key: str):
-    return html.P(lang(key), className='default-bold-typography')
+    return html.P(
+        children=lang(key),
+        className='default-bold-typography',
+    )
 
 
-def BUTTON(children: any, id: str, color: str = "primary"):
+def BUTTON(children, id: str, color="primary"):
     return dbc.Button(
         children=children,
         class_name='default-section default-row-section default-border',
@@ -47,30 +40,35 @@ def BUTTON(children: any, id: str, color: str = "primary"):
 
 
 def CARD(children):
-    return html.Div(children, className='default-section default-white-section default-border')
+    return html.Div(
+        children,
+        className='default-section default-white-section default-border'
+    )
 
 
-def COLUMN_SECTION(children: any = "", id="", hide=False):
+def COLUMN_SECTION(children: any = '', id='', hide=False):
     if hide:
-        return html.Div(children, className='default-section default-column-section default-hide-section', id=id)
-    return html.Div(children, className='default-section default-column-section', id=id)
+        return html.Div(
+            children,
+            className='default-section default-column-section default-hide-section',
+            id=id
+        )
+    return html.Div(children,
+                    className='default-section default-column-section',
+                    id=id
+                    )
 
 
 def DATE_PICKER_RANGE(id: str):
     return dcc.DatePickerRange(
-        start_date_placeholder_text=lang(
-            'component_start_date_placeholder'),
-        end_date_placeholder_text=lang("component_end_date_placeholder"),
         calendar_orientation='vertical',
+        className='default-section default-border',
         display_format="DD MM YYYY",
+        end_date_placeholder_text=lang("component_end_date_placeholder"),
         id=id,
         min_date_allowed='2019-01-01',
-        className='default-section default-border',
+        start_date_placeholder_text=lang('component_start_date_placeholder'),
     )
-
-
-def DROPDOWN(options: dict = {}, id=''):
-    return dbc.DropdownMenu([*map(lambda option: DROPDOWN_ITEM(option=option, id=id), options.items())], id=id, label=lang("component_dropdown_label"), class_name='default-border')
 
 
 def DROPDOWN_ITEM(option: tuple, id: str):
@@ -78,36 +76,55 @@ def DROPDOWN_ITEM(option: tuple, id: str):
     return dbc.DropdownMenuItem(value, id=key + '-' + id)
 
 
-def INTERVAL(id: str, max_intervals: int):
+def DROPDOWN(options: dict = {}, id=''):
+    return dbc.DropdownMenu([*map(lambda option: DROPDOWN_ITEM(option=option, id=id), options.items())], id=id, label=lang("component_dropdown_label"), class_name='default-border')
+
+
+def ERROR_ICON():
+    return html.I(className="bi bi-x-octagon-fill me-2")
+
+
+def INTERVAL(id: str, max_intervals: int, interval=2.1*1000):
     return dcc.Interval(
         disabled=True,
         id=id,
-        interval=2.1*1000,
+        interval=interval,
         max_intervals=max_intervals,
         n_intervals=0,
     )
 
 
 def LINK(key: str, href: str):
-    return html.A(lang(key), href=lang(href), className='default-typography', target='_blank')
+    return html.A(
+        children=lang(key),
+        className='default-typography',
+        href=lang(href),
+        target='_blank'
+    )
 
 
 def MAIN_SECTION(children: any = ""):
-    return html.Div(children, className='main-section default-column-section')
+    return html.Div(
+        children,
+        className='main-section default-column-section'
+    )
 
 
 def MAIN_TITLE():
-    return html.H1(lang('component_main_title_text'), className='default-typography main-title')
+    return html.H1(
+        children=lang('component_main_title_text'),
+        className='default-typography main-title'
+    )
 
 
-def PIE_CHART(first_dimension_values, second_dimension_values):
-    second_dimension_length = len(second_dimension_values)
-    print('second_dimension_values', second_dimension_values)
+def PIE_CHART(first_column_values, second_column_values):
+    second_column_length = len(second_column_values)
+
     cols = 2
-    rows = ceil(second_dimension_length / cols)
+    rows = ceil(second_column_length / cols)
 
     initial_x = cols * 0.20
-    initial_y = rows*0.31
+    initial_y = rows*1
 
     x_gap = 0.60
     y_gap = 0.42
@@ -117,46 +134,75 @@ def PIE_CHART(first_dimension_values, second_dimension_values):
 
     annotations = []
 
-    for name, values in second_dimension_values.items():
-        value_index = list(second_dimension_values.keys()).index(name) + 1
+    for name, values in second_column_values.items():
+        value_index = list(second_column_values.keys()).index(name) + 1
+
         col = cols - value_index % cols
         row = ceil(value_index / cols)
+
         x = initial_x + (col - 1)*x_gap
         y = initial_y - (row - 1)*y_gap
-        fig.add_trace(go.Pie(labels=first_dimension_values, values=values, name=name),
-                      col=col, row=row)
+
+        fig.add_trace(
+            go.Pie(
+                labels=first_column_values,
+                name=name,
+                values=values,
+            ),
+            col=col,
+            row=row
+        )
+
         annotations.append(dict(text=name, x=x, y=y,
                            font_size=20, showarrow=False))
 
     fig.update_traces(hoverinfo="label+percent+name")
 
-    fig.update_layout(title_text="Global Emissions 1990-2011",
-                      annotations=annotations)
+    fig.update_layout(
+        annotations=annotations)
 
     return dcc.Graph(figure=fig, id="pie-graph")
 
 
 def ROW_SECTION(children: any = "", id="", hide=False):
     if hide:
-        return html.Div(children, className='default-section default-row-section default-hide-section', id=id)
-    return html.Div(children, className='default-section default-row-section', id=id)
+        return html.Div(
+            children,
+            className='default-section default-row-section default-hide-section',
+            id=id
+        )
+    return html.Div(
+        children,
+        className='default-section default-row-section',
+        id=id
+    )
 
 
-def SPINNER(id: str):
-    return html.Div(dbc.Spinner(size="sm"), id=id, className="default-hide-section")
+def SPINNER(id='', size='sm', color='light', hide=False):
+    if hide:
+        return html.Div(children=dbc.Spinner(size=size, color=color), id=id, className="default-hide-section")
+    return html.Div(children=dbc.Spinner(size=size, color=color), id=id, className="default-section")
 
 
 def STORE(id: str):
     return dcc.Store(id=id)
 
 
-def TABLE(data: str):
-    return dash_table.DataTable([{"month_year": month_year, "age": age,
-                                  "gender": gender, "birthday": birthday,
-                                  "schooling": schooling, "ethnicity": ethnicity,
-                                  "region": region, "period": period, "social_welfare": social_welfare} for _, month_year, age, gender, birthday, schooling, ethnicity, region, period, social_welfare in data],
-                                [{"name": PUC_DB_HOMELESS_COLUMNS_TABLE_LABELS[column], "id": column} for column in ['month_year', 'age', 'gender', 'birthday', 'schooling', 'ethnicity', 'region', 'period', 'social_welfare']])
+def SUCCESS_ICON():
+    return html.I(className="bi bi-check-circle-fill me-2")
 
 
-def TEXT(key: str, id: str = ''):
-    return html.P(lang(key), className='default-typography', id=id)
+def TABLE(data: list):
+    return dash_table.DataTable(data=[{"month_year": month_year, "age": age,
+                                       "gender": gender, "birthday": birthday,
+                                       "schooling": schooling, "ethnicity": ethnicity,
+                                       "region": region, "period": period, "social_welfare": social_welfare} for _, month_year, age, gender, birthday, schooling, ethnicity, region, period, social_welfare in data],
+                                columns=[{"name": PUC_DB_HOMELESS_COLUMNS_TABLE_LABELS[column], "id": column} for column in ['month_year', 'age', 'gender', 'birthday', 'schooling', 'ethnicity', 'region', 'period', 'social_welfare']])
+
+
+def TEXT(key: str, id=''):
+    return html.P(
+        children=lang(key),
+        className='default-typography',
+        id=id
+    )

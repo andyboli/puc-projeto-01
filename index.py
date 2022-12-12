@@ -1,5 +1,5 @@
 from view.app import run_view
-from controller.orchestrator import restart_app
+# from controller.orchestrator import restart_app
 
 
 if __name__ == "__main__":

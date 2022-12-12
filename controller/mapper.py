@@ -290,21 +290,21 @@ def map_homeless_data(data: list):
 
 
 def map_bar_chart_data(data):
-    dimensions = {}
+    columns = {}
     mapped_data = []
-    for amout, first_dimension, second_dimension in data:
-        if first_dimension not in dimensions.keys():
-            dimensions[first_dimension] = {}
-        if second_dimension not in dimensions[first_dimension].keys():
-            dimensions[first_dimension][second_dimension] = amout
+    for amout, first_column, second_column in data:
+        if first_column not in columns.keys():
+            columns[first_column] = {}
+        if second_column not in columns[first_column].keys():
+            columns[first_column][second_column] = amout
         else:
-            dimensions[first_dimension][second_dimension] = [
-                *dimensions[first_dimension][second_dimension], amout]
-    for first_dimension in dimensions.keys():
-        second_dimensions = dimensions[first_dimension].keys()
-        amouts = dimensions[first_dimension].values()
+            columns[first_column][second_column] = [
+                *columns[first_column][second_column], amout]
+    for first_column in columns.keys():
+        second_columns = columns[first_column].keys()
+        amouts = columns[first_column].values()
         mapped_data.append(
-            {'type': 'bar', 'name': first_dimension, 'x': list(second_dimensions), 'y': list(amouts)})
+            {'type': 'bar', 'name': first_column, 'x': list(second_columns), 'y': list(amouts)})
     return mapped_data
 
 
