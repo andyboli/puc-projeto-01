@@ -2,7 +2,7 @@ import mysql.connector
 from mysql.connector import (errorcode, MySQLConnection)
 
 from controller.reader import lang
-from database.constants import (CONNECTION_CONFIG, PUC_DB, PUC_DB_CREATE_QUERY, PUC_DB_HOMELESS_CREATE_QUERY, PUC_DB_HOMELESS_INSERT_QUERY,
+from database.constants import (CONNECTION_CONFIG, PUC_DB, PUC_DB_CREATE_QUERY, PUC_DB_DROP_QUERY, PUC_DB_HOMELESS_CREATE_QUERY, PUC_DB_HOMELESS_INSERT_QUERY,
                                 PUC_DB_HOMELESS_SELECT_QUERY_COLUMNS, PUC_DB_HOMELESS_SELECT_QUERY_PERIOD, PUC_DB_HOMELESS_SELECT_QUERY, PUC_DB_HOMELESS, AGE_COLUMN, PUC_DB_HOMELESS_SELECT_QUERY_CUSTON_PERIOD, PUC_DB_HOMELESS_SELECT_QUERY_CUSTON_COLUMNS, PUC_DB_HOMELESS_AGE_RANGES_QUERY, SOCIAL_WELFARE_COLUMN, PUC_DB_HOMELESS_SOCIAL_WELFARE_RANGES_QUERY)
 
 
@@ -67,6 +67,7 @@ def close_connection():
         error = lang('close_connection_error').format(errorcode.ER_NO_DB_ERROR)
         connect_mysql.close()
     except Exception as err:
+
         error = lang('close_connection_error').format(err)
     finally:
         return success, error
@@ -98,12 +99,12 @@ def create_database(db_name: str = PUC_DB, db_query=PUC_DB_CREATE_QUERY):
         return success, error
 
 
-def drop_database(db_name: str = PUC_DB, db_query=PUC_DB_CREATE_QUERY):
+def drop_database(db_name: str = PUC_DB, db_query=PUC_DB_DROP_QUERY):
     """Drops a database in the MySQLConnection created by open_connection_iterator.
 
     Args:
         db_name (str, optional): Database name. Defaults to PUC_DB.
-        db_query (str, optional): Create database query. Defaults to PUC_DB_CREATE_QUERY.
+        db_query (str, optional): Create database query. Defaults to PUC_DB_DROP_QUERY.
 
     Returns:
         success (str): Success message.
