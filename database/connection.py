@@ -18,6 +18,7 @@ def open_connection():
     success = ''
     error = ''
     try:
+        print("CONNECTION_CONFIG", CONNECTION_CONFIG)
         connection: MySQLConnection = mysql.connector.connect(
             **CONNECTION_CONFIG)
         if not connection.is_connected():
@@ -30,6 +31,7 @@ def open_connection():
         else:
             error = lang('open_connection_error').format(err)
     finally:
+        print("connection, success, error", connection, success, error)
         return connection, success, error
 
 
