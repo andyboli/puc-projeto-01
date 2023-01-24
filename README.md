@@ -1,4 +1,34 @@
-# Desenvolvimento de aplicação para tratamento de dados - PUC
+# Desenvolvimento de aplicação para tratamento de dados
+
+Projeto do primeiro semestre do curso Banco de Dados da PUC Minas Virtual.
+
+## Etapas
+
+### 1ª Etapa: Grupos e Bases de Dados
+
+Definição dos grupos.
+Definição das bases de dados.
+
+
+### 2ª Etapa: Arquitetura e Metodologia
+
+Definição da arquitetura e da metodologia para o tratamento dos dados.
+
+### 3ª Etapa: Captura dos dados
+
+Desenvolvimento da solução para tratamento inicial de dados (acesso, seleção e carga dos dados).
+
+### 4ª Etapa: Limpeza e Transformação
+
+Implementação da solução para limpeza e transformação dos dados.
+
+### 5ª Etapa: Visualização de Dados
+
+Implementação da apresentação visual dos dados;
+
+### 6ª Etapa: Apresentação Final do Projeto
+
+Elaboração da apresentação final do projeto.
 
 ## Development
 
